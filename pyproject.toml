@@ -7,8 +7,8 @@ build-backend = 'setuptools.build_meta'
 requires = ['setuptools>=67.8.0', 'wheel>=0.40.0', 'packaging>=23.1.0', 'tox>=3.28.0,<4']
 
 [project]
-name        = 'chocolatey'
-version     = '0.0.0'
+name        = 'py-chocolatey'
+version     = '0.0.1'
 description = 'API for Chocolatey, the Package Manager for Windows.'
 license = { text = 'zlib/libpng License ; https://opensource.org/licenses/Zlib' }
 authors = [
@@ -19,7 +19,7 @@ maintainers = [
     { name  = 'Adam Karpierz' },
     { email = 'adam@karpierz.net' },
 ]
-keywords = ['chocolatey']
+keywords = ['chocolatey', 'choco']
 classifiers = [
     'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
@@ -63,9 +63,9 @@ test = [
     'deepdiff>=6.3.0',
 ]
 [project.urls]
-Homepage      = 'https://pypi.org/project/chocolatey/'
-Documentation = 'https://chocolatey.readthedocs.io/'
-Download      = 'https://pypi.org/project/chocolatey/'
+Homepage      = 'https://pypi.org/project/py-chocolatey/'
+Documentation = 'https://py-chocolatey.readthedocs.io/'
+Download      = 'https://pypi.org/project/py-chocolatey/'
 Source        = 'https://github.com/karpierz/chocolatey'
 Issues        = 'https://github.com/karpierz/chocolatey/issues'
 
@@ -211,7 +211,7 @@ commands =
     {envpython} -m sphinxlint --ignore .tox --ignore build --ignore dist
    #{envpython} -m sphinx.apidoc -f {envsitepackagesdir}/{[base]packagesubdir}
     {envpython} -c "from setuptools import setup ; setup()" -v build_sphinx -b html -E
-    {envpython} -c "from setuptools import setup ; setup()" -v build_sphinx -b linkcheck
+   #{envpython} -c "from setuptools import setup ; setup()" -v build_sphinx -b linkcheck
     {envpython} -c "from setuptools import setup ; setup()" -v build_sphinx -b doctest
 extras = doc
 deps =

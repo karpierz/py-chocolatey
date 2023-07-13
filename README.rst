@@ -1,5 +1,5 @@
-chocolatey
-==========
+py-chocolatey
+=============
 
 Python |package_bold| package provides API for Chocolatey,
 the Package Manager for Windows.
@@ -84,9 +84,9 @@ Authors
 
 * Adam Karpierz <adam@karpierz.net>
 
-.. |package| replace:: chocolatey
-.. |package_bold| replace:: **chocolatey**
+.. |package| replace:: py-chocolatey
+.. |package_bold| replace:: **py-chocolatey**
 .. |respository| replace:: https://github.com/karpierz/chocolatey.git
 .. _Development page: https://github.com/karpierz/chocolatey
-.. _PyPI record: https://pypi.org/project/chocolatey/
-.. _Documentation: https://chocolatey.readthedocs.io/
+.. _PyPI record: https://pypi.org/project/py-chocolatey/
+.. _Documentation: https://py-chocolatey.readthedocs.io/
