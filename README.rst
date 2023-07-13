@@ -1,7 +1,7 @@
 chocolatey
 ==========
 
-Python |package_bold| package provires API for Chocolatey,
+Python |package_bold| package provides API for Chocolatey,
 the Package Manager for Windows.
 
 Overview

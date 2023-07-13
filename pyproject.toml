@@ -4,12 +4,12 @@
 
 [build-system]
 build-backend = 'setuptools.build_meta'
-requires = ['setuptools', 'wheel', 'packaging', 'tox>=3.28.0,<4']
+requires = ['setuptools>=67.8.0', 'wheel>=0.40.0', 'packaging>=23.1.0', 'tox>=3.28.0,<4']
 
 [project]
 name        = 'chocolatey'
-version     = '0.3.3'
-description = 'MS Windows Task Scheduler.'
+version     = '0.0.0'
+description = 'API for Chocolatey, the Package Manager for Windows.'
 license = { text = 'zlib/libpng License ; https://opensource.org/licenses/Zlib' }
 authors = [
     { name  = 'Adam Karpierz' },
@@ -37,29 +37,30 @@ classifiers = [
     'Programming Language :: Python :: Implementation :: CPython',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
-requires-python = '>=3.7.9,<4.0.0'
+requires-python = '>=3.7.0,<4.0.0'
 dependencies = [
     # mandatory
-    'setuptools',
-    'pkg_about',
+    'setuptools>=67.8.0',
+    'pkg_about>=1.0.8',
     # others
-    'atpublic',
+    'atpublic>=3.1.2',
     'nocasedict>=2.0.1',
     'regex>=2023.6.3',
 ]
 dynamic = ['readme']
 [project.optional-dependencies]
 doc = [
-    'Sphinx',
-    'sphinx-tabs',
-    'sphinx_copybutton',
-    'sphinxcontrib-spelling',
-    'sphinx-lint',
-    'restructuredtext-lint',
-    'nbsphinx',
+    'docutils>=0.14,<0.19',
+    'Sphinx>=5.3.0',
+    'sphinx-tabs>=3.4.1',
+    'sphinx-copybutton>=0.5.1',
+    'sphinxcontrib-spelling>=7.7.0',
+    'sphinx-lint>=0.6.7',
+    'restructuredtext-lint>=1.4.0',
+    'nbsphinx>=0.8.10',
 ]
 test = [
-    'deepdiff',
+    'deepdiff>=6.3.0',
 ]
 [project.urls]
 Homepage      = 'https://pypi.org/project/chocolatey/'
@@ -162,16 +163,16 @@ isolated_build = True
 skip_missing_interpreters = true
 requires =
     {[base]setup_requires}
-    tox-venv
-    tox-backticks
-    tox-tags
-    tox-run-before
+    tox-venv>=0.4.0
+    tox-backticks>=0.3.0
+    tox-tags>=0.2.0
+    tox-run-before>=0.1.0
 
 [base]
 setup_requires =
-    pip
-    setuptools
-    wheel
+    pip>=23.1.2
+    setuptools>=67.8.0
+    wheel>=0.40.0
 packagesubdir = chocolatey
 
 [testenv]
@@ -201,8 +202,8 @@ commands =
     {envpython} -m coverage html
 deps =
     {[testenv]deps}
-    coverage
-    diff-cover
+    coverage>=7.2.7
+    diff-cover>=7.6.0
 
 [testenv:docs]
 basepython = python3.7
@@ -218,7 +219,6 @@ deps =
 [testenv:build]
 basepython = python3.7
 setenv =
-    {[testenv]setenv}
     PKG_PVER=`{envpython} -c "import platform ; print(''.join(platform.python_version_tuple()[:2]))" 2> nul`
     PKG_NAME=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ;import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_name(),     end='')" 2> nul`
     PKG_DIST=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ;import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_fullname(), end='')" 2> nul`
@@ -258,9 +258,9 @@ commands =
 extras =
 deps =
     {[testenv]deps}
-    flake8
-    flake8-pyproject
-    flake8-docstrings
-    pep8-naming
-    flake8-builtins
+    flake8>=5.0.4
+    flake8-pyproject>=1.2.3
+    flake8-docstrings>=1.7.0
+    pep8-naming>=0.13.3
+    flake8-builtins>=2.1.0
 """
