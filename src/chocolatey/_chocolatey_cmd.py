@@ -6,6 +6,9 @@
 Low-level Chocolatey API
 """
 
+import sys
+import ctypes
+from pathlib   import Path
 from functools import partialmethod
 
 from public import public
@@ -18,7 +21,9 @@ from ._run import run
 class ChocolateyCmd:
     """Chocolatey commands"""
 
-    _CHOCOLATEY_EXE = r"C:\ProgramData\chocolatey\bin\choco.exe"
+    _CHOCOLATEY_EXE = Path("C:/ProgramData/chocolatey/bin/choco.exe")
+    _LAUNCHER_EXE   = Path(__file__).resolve().parent/"exe-bin"/"launcher.exe"
+
 
     def __new__(cls, source: str = None):
         self = super().__new__(cls)
@@ -43,11 +48,12 @@ class ChocolateyCmd:
 
     def cache(self, *args, **kwargs) -> run.CompletedProcess:
         """Manage the local HTTP caches used to store queries (v2.1.0+)."""
-        return self._cmd("cache", *args, source=self._get_source(kwargs), **kwargs)
+        return self._cmd_elevated("cache", *args, source=self._get_source(kwargs), **kwargs)
 
     def config(self, *args, **kwargs) -> run.CompletedProcess:
         """Retrieve and configure config file settings."""
-        return self._cmd("config", *args, source=self._get_source(kwargs), **kwargs)
+        cmd = self._cmd if args[0] in ("list",) else self._cmd_elevated
+        return cmd("config", *args, source=self._get_source(kwargs), **kwargs)
 
     def export(self, *args, **kwargs) -> run.CompletedProcess:
         """Exports list of currently installed packages."""
@@ -81,15 +87,15 @@ class ChocolateyCmd:
 
     def install(self, *args, **kwargs) -> run.CompletedProcess:
         """Installs packages using configured sources."""
-        return self._cmd("install", *args, source=source, **kwargs)
+        return self._cmd_elevated("install", *args, source=self._get_source(kwargs), **kwargs)
 
     def upgrade(self, *args, **kwargs) -> run.CompletedProcess:
         """Upgrades packages from various sources."""
-        output = self._cmd("upgrade", *args, source=source, **kwargs)
+        output = self._cmd_elevated("upgrade", *args, source=self._get_source(kwargs), **kwargs)
 
     def uninstall(self, *args, **kwargs) -> run.CompletedProcess:
         """Uninstalls a package."""
-        return self._cmd("uninstall", *args, source=source, **kwargs)
+        return self._cmd_elevated("uninstall", *args, source=self._get_source(kwargs), **kwargs)
 
     def new(self, *args, **kwargs) -> run.CompletedProcess:
         """Creates template files for creating a new Chocolatey package."""
@@ -101,7 +107,8 @@ class ChocolateyCmd:
 
     def pin(self, *args, **kwargs) -> run.CompletedProcess:
         """Suppress upgrades for a package."""
-        return self._cmd("pin", *args, source=self._get_source(kwargs), **kwargs)
+        cmd = self._cmd if args[0] in ("list",) else self._cmd_elevated
+        return cmd("pin", *args, source=self._get_source(kwargs), **kwargs)
 
     def push(self, *args, **kwargs) -> run.CompletedProcess:
         """Pushes a compiled nupkg to a source."""
@@ -142,6 +149,15 @@ class ChocolateyCmd:
                             "shell", "cwd", "timeout", "check", "encoding", "errors",
                             "text", "env", "universal_newlines"}
 
-    # this.script.powershell(self._self_elevate + cmd)
+    @property
+    def _in_elevated(self):
+        is_admin = bool(ctypes.windll.shell32.IsUserAnAdmin())
+        win_ver  = sys.getwindowsversion()
+        return is_admin or win_ver.build < 6000
+
+    @property
+    def _cmd_elevated(self):
+        return self._cmd if self._in_elevated else self._cmd_launched
 
     _cmd = partialmethod(_run_wrapper, run, _CHOCOLATEY_EXE)
+    _cmd_launched = partialmethod(_run_wrapper, run, _LAUNCHER_EXE, _CHOCOLATEY_EXE)

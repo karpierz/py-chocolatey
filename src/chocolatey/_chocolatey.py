@@ -21,6 +21,7 @@ from ._run import run
 from ._chocolatey_cmd import ChocolateyCmd
 
 
+@public
 @dataclass
 class version_info:
     major:  int = 0
@@ -29,12 +30,14 @@ class version_info:
     serial: int = 0
 
 
+@public
 @dataclass
 class Package:
     id: str
     version: str
 
 
+@public
 @dataclass
 class PackageOutdated(Package):
     available_version: str = None
@@ -44,6 +47,7 @@ class PackageOutdated(Package):
         self.pinned = _str2bool("pinned", self.pinned)
 
 
+@public
 @dataclass
 class PackageInfo(Package):
     description: str = ""
@@ -53,6 +57,7 @@ class PackageInfo(Package):
     published: str = ""
 
 
+@public
 @dataclass
 class Config:
     name: str
@@ -64,6 +69,7 @@ class Config:
         self.value = _str2bool("value", self.value, with_check=False)
 
 
+@public
 @dataclass
 class Source:
     name: str
@@ -86,6 +92,7 @@ class Source:
         self.admin_only   = _str2bool("admin_only", self.admin_only)
 
 
+@public
 @dataclass
 class Feature:
     name: str
@@ -98,12 +105,14 @@ class Feature:
                                  literals=("enabled", "disabled"))
 
 
+@public
 @dataclass
 class ApiKey:
     source: str
     info: str
 
 
+@public
 @dataclass
 class Template:
     name: str
@@ -153,7 +162,7 @@ class Chocolatey:
                                         **self._capture_output)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return output.stdout.strip()
+        return output.stdout.lstrip().replace("\r\n", "\n")
 
     # run_silent = partial(subprocess.run, stdout=open(os.devnull, 'wb'))
     # FIXME: look at python_vagrant to achieve hide of out and/or err stream
@@ -238,7 +247,8 @@ class Chocolatey:
         self._omit_args(kwargs)#, "verbose")
         try:
             self.cmd.export(output_file_path=output_file_path,
-                            include_version=include_version, **kwargs)
+                            include_version=include_version,
+                            **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -249,18 +259,21 @@ class Chocolatey:
                             "missing at least 1 required positional argument")
         self._omit_args(kwargs, "yes")#, "verbose")
         try:
-            self._cmd_out("install", *args, yes=yes, **kwargs)
+            self.cmd.install(*pkg_ids, yes=yes, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
-    def upgrade(self, *pkg_ids, yes=True, **kwargs) -> None:
+    def upgrade(self, *pkg_ids, install_if_not_installed=True, yes=True,
+                **kwargs) -> None:
         """Upgrades packages from various sources."""
         if not pkg_ids:
             raise TypeError("upgrade() "
                             "missing at least 1 required positional argument")
-        self._omit_args(kwargs, "yes")#, "verbose")
+        self._omit_args(kwargs, "install_if_not_installed", "yes")#, "verbose")
         try:
-            self._cmd_out("upgrade", *args, yes=yes, **kwargs)
+            self.cmd.upgrade(*pkg_ids,
+                             install_if_not_installed=install_if_not_installed,
+                             yes=yes, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -271,7 +284,7 @@ class Chocolatey:
                             "missing at least 1 required positional argument")
         self._omit_args(kwargs, "yes")#, "verbose")
         try:
-            self._cmd_out("uninstall", *pkg_ids, yes=yes, **kwargs)
+            self.cmd.uninstall(*pkg_ids, yes=yes, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -291,7 +304,7 @@ class Chocolatey:
         try:
             self.cmd.pin("add", name=pkg_id,
                          # reason=reason if reason is False else f'"{reason}"',
-                         **self._capture_output, **kwargs)
+                         **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -299,8 +312,7 @@ class Chocolatey:
         """Remove suppressing of upgrades for a package."""
         self._omit_args(kwargs)#, "verbose")
         try:
-            self.cmd.pin("remove", name=pkg_id,
-                         **self._capture_output, **kwargs)
+            self.cmd.pin("remove", name=pkg_id, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -476,8 +488,8 @@ class Chocolatey:
         """Add API key for source."""
         self._omit_args(kwargs)#, "verbose")
         try:
-            self.cmd.sources("add", source=source, api_key=api_key,
-                             **self._capture_output, **kwargs)
+            self.cmd.apikey("add", source=source, api_key=api_key,
+                            **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -485,8 +497,8 @@ class Chocolatey:
         """Remove API key for source."""
         self._omit_args(kwargs)#, "verbose")
         try:
-            self.cmd.sources("remove", source=source,
-                             **self._capture_output, **kwargs)
+            self.cmd.apikey("remove", source=source,
+                            **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -509,6 +521,23 @@ class Chocolatey:
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
         return self._config(output.stdout, klass=Template)[0]
+
+    def cache_list(self, **kwargs) -> None:
+        """Displays information about the local HTTP caches used to store
+           queries."""
+        self._omit_args(kwargs)#, "verbose")
+        try:
+            self.cmd.cache("list", **kwargs)
+        except run.CalledProcessError as exc:
+            self._handle_exception(exc)
+
+    def cache_remove(self, **kwargs) -> None:
+        """Remove the local HTTP caches used to store queries."""
+        self._omit_args(kwargs)#, "verbose")
+        try:
+            self.cmd.cache("remove", **kwargs)
+        except run.CalledProcessError as exc:
+            self._handle_exception(exc)
 
     #------ internals ------#
 

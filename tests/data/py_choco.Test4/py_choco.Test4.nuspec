@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <!-- Required elements-->
+    <id>py_choco.Test4</id>
+    <version>1.0.4</version>
+    <description>py_choco.Test4 is a test package for py_chocolatey.</description>
+    <authors>Adam Karpierz</authors>
+    <!-- Optional elements -->
+    <title>py_choco.Test4 - py_chocolatey's test package</title>
+  </metadata>
+  <files><file src="tools/**" target="tools" /></files>
+</package>

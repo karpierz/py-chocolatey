@@ -22,7 +22,7 @@ def run(*args, start_terminal_window=False, **kwargs):
     """
     if start_terminal_window:
         args = ["cmd.exe", "/C", "start", *args]
-    output = subprocess.run([str(arg) for arg in args], check=True, **kwargs)
+    output = subprocess.run([str(arg) for arg in args], check=kwargs.pop("check", True), **kwargs)
     print_cmd = [("*****" if isinstance(arg, run.SafeString) else arg) for arg in args]
     log.debug(f"cmd:{print_cmd}, returncode:{output.returncode}")#, stdout:{output.stdout}, stderr:{output.stderr}")
     return output
