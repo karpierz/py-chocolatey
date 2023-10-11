@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.1.2 (2023-10-11)
+------------------
+- Fixes for many functions that failed when the source was set.
+
 0.1.1 (2023-10-11)
 ------------------
 - Added missing source_add().

@@ -230,22 +230,40 @@ class ChocolateyCase(unittest.TestCase):
     def test_config_get(self):
         """Get config value."""
         print()
-        print("CONFIG SET:")   ; self.choco.config_set(name="AAA", value="TRALALA")
-        print("CONFIG GET:")   ; pprint(self.choco.config_get(name="AAA"))
-        print("CONFIG SET:")   ; self.choco.config_set(name="AAA", value="BLABLAB")
-        print("CONFIG GET:")   ; pprint(self.choco.config_get(name="AAA"))
-        print("CONFIG UNSET:") ; self.choco.config_unset(name="AAA")
-        print("CONFIG: GET")   ; pprint(self.choco.config_get(name="AAA"))
-        print("CONFIG: UNSET") ; self.choco.config_unset(name="AAA")
-        print("CONFIG: UNSET") ; self.choco.config_unset(name="AAA")
+        self.choco.config_set(name="TEST1", value="TEST1_VALUE")
+        value = self.choco.config_get(name="TEST1")
+        print("CONFIG GET TEST1:") ; pprint(value)
+        self.assertEqual(value, "TEST1_VALUE")
+        self.choco.config_set(name="TEST1", value="TEST2_VALUE")
+        value = self.choco.config_get(name="TEST1")
+        print("CONFIG GET TEST1:") ; pprint(value)
+        self.assertEqual(value, "TEST2_VALUE")
+        self.choco.config_unset(name="TEST1")
 
     def test_config_set(self):
         """Set config value."""
-        self.assertTrue(1 == 1)
+        print()
+        self.choco.config_unset(name="TEST1")
+        self.choco.config_set(name="TEST1", value="TEST3_VALUE")
+        value = self.choco.config_get(name="TEST1")
+        print("CONFIG SET TEST1:") ; pprint(value)
+        self.assertEqual(value, "TEST3_VALUE")
+        self.choco.config_set(name="TEST1", value="TEST4_VALUE")
+        value = self.choco.config_get(name="TEST1")
+        print("CONFIG SET TEST1:") ; pprint(value)
+        self.assertEqual(value, "TEST4_VALUE")
+        self.choco.config_unset(name="TEST1")
 
     def test_config_unset(self):
         """Unset config."""
-        self.assertTrue(1 == 1)
+        print()
+        self.choco.config_set(name="TEST1", value="TEST5_VALUE")
+        value = self.choco.config_get(name="TEST1")
+        print("CONFIG UNSET TEST1:") ; pprint(value)
+        self.assertEqual(value, "TEST5_VALUE")
+        self.choco.config_unset(name="TEST1")
+        #with self.assertRaises(Exception):
+        value = self.choco.config_get(name="TEST1")
 
     def test_sources(self):
         """Retrieve default sources."""

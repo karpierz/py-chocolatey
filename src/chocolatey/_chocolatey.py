@@ -138,7 +138,7 @@ class Chocolatey:
         """Gets the Chocolatey version."""
         try:
             output = self.cmd.choco(version=True, limit_output=True,
-                                    **self._capture_output)
+                                    source=False, **self._capture_output)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
         return output.stdout.strip()
@@ -174,7 +174,7 @@ class Chocolatey:
                         "verbose", "detail", "detailed", "idonly", "id_only")
         try:
             output = self.cmd.list(*filters, limit_output=True, local_only=True,
-                                   all_versions=all_versions,
+                                   all_versions=all_versions, source=False,
                                    **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
@@ -372,11 +372,14 @@ class Chocolatey:
         """Get config value."""
         self._omit_args(kwargs)#, "verbose")
         try:
-            output = self.cmd.config("get", name=name,
+            output = self.cmd.config("get", name=name, limit_output=True,
                                      **self._capture_output, **kwargs)
+            value = output.stdout
+            if value and value[-1] == "\n": value = value[:-1]
+            if value and value[-1] == "\r": value = value[:-1]
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return _str2bool("stdout", output.stdout, with_check=False)
+        return _str2bool("stdout", value, with_check=False)
 
     def config_set(self, *, name: str, value, **kwargs) -> None:
         """Set config value."""
@@ -462,7 +465,7 @@ class Chocolatey:
                                       **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return _str2bool("stdout", output.stdout,
+        return _str2bool("stdout", output.stdout.strip(),
                          literals=("enabled", "disabled"))
 
     def feature_enable(self, *, name: str, **kwargs) -> None:

@@ -48,20 +48,20 @@ class ChocolateyCmd:
 
     def cache(self, *args, **kwargs) -> run.CompletedProcess:
         """Manage the local HTTP caches used to store queries (v2.1.0+)."""
-        return self._cmd_elevated("cache", *args, source=self._get_source(kwargs), **kwargs)
+        return self._cmd_elevated("cache", *args, **kwargs)
 
     def config(self, *args, **kwargs) -> run.CompletedProcess:
         """Retrieve and configure config file settings."""
         cmd = self._cmd if args[0] in ("list",) else self._cmd_elevated
-        return cmd("config", *args, source=self._get_source(kwargs), **kwargs)
+        return cmd("config", *args, **kwargs)
 
     def export(self, *args, **kwargs) -> run.CompletedProcess:
         """Exports list of currently installed packages."""
-        return self._cmd("export", *args, source=self._get_source(kwargs), **kwargs)
+        return self._cmd("export", *args, **kwargs)
 
     def feature(self, *args, **kwargs) -> run.CompletedProcess:
         """View and configure choco features."""
-        return self._cmd("feature", *args, source=self._get_source(kwargs), **kwargs)
+        return self._cmd("feature", *args, **kwargs)
 
     features = feature  # alias for feature
 
@@ -103,12 +103,12 @@ class ChocolateyCmd:
 
     def pack(self, *args, **kwargs) -> run.CompletedProcess:
         """Packages nuspec, scripts, and other Chocolatey package resources into a nupkg file."""
-        return self._cmd("pack", *args, source=self._get_source(kwargs), **kwargs)
+        return self._cmd("pack", *args, **kwargs)
 
     def pin(self, *args, **kwargs) -> run.CompletedProcess:
         """Suppress upgrades for a package."""
         cmd = self._cmd if args[0] in ("list",) else self._cmd_elevated
-        return cmd("pin", *args, source=self._get_source(kwargs), **kwargs)
+        return cmd("pin", *args, **kwargs)
 
     def push(self, *args, **kwargs) -> run.CompletedProcess:
         """Pushes a compiled nupkg to a source."""
@@ -123,7 +123,7 @@ class ChocolateyCmd:
 
     def template(self, *args, **kwargs) -> run.CompletedProcess:
         """Get information about installed templates."""
-        return self._cmd("template", *args, source=self._get_source(kwargs), **kwargs)
+        return self._cmd("template", *args, **kwargs)
 
     templates = template  # alias for template
 
