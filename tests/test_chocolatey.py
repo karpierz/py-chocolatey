@@ -27,6 +27,12 @@ class ChocolateyCase(unittest.TestCase):
         cls.choco = Chocolatey()
         cls.lock = threading.Lock()
 
+    def setUp(self):
+        self.lock.acquire()
+
+    def tearDown(self):
+        self.lock.release()
+
     ### High-level API ###
 
     def test_version(self):
@@ -118,48 +124,45 @@ class ChocolateyCase(unittest.TestCase):
 
     def test_install(self):
         """Installs packages using configured sources."""
-        with self.lock:
-            print()
-            package = "py_choco.Test1"
+        print()
+        package = "py_choco.Test1"
+        if package in self.choco.installed(): self.choco.uninstall(package)
+        installed_before = self.choco.installed()
+        print("INSTALLED BEFORE INSTALL:") ; pprint(installed_before)
+        try:
+            self.choco.install(package, source=data_dir)
+            installed_after = self.choco.installed()
+            print("INSTALLED AFTER INSTALL:") ; pprint(installed_after)
+        finally:
             if package in self.choco.installed(): self.choco.uninstall(package)
-            installed_before = self.choco.installed()
-            print("INSTALLED BEFORE INSTALL:") ; pprint(installed_before)
-            try:
-                self.choco.install(package, source=data_dir)
-                installed_after = self.choco.installed()
-                print("INSTALLED AFTER INSTALL:") ; pprint(installed_after)
-            finally:
-                if package in self.choco.installed(): self.choco.uninstall(package)
 
     def test_upgrade(self):
         """Upgrades packages from various sources."""
-        with self.lock:
-            print()
-            package = "py_choco.Test2"
+        print()
+        package = "py_choco.Test2"
+        if package in self.choco.installed(): self.choco.uninstall(package)
+        installed_before = self.choco.installed()
+        print("INSTALLED BEFORE UPGRADE:") ; pprint(installed_before)
+        try:
+            self.choco.upgrade(package, source=data_dir)
+            installed_after = self.choco.installed()
+            print("INSTALLED AFTER UPGRADE:") ; pprint(installed_after)
+        finally:
             if package in self.choco.installed(): self.choco.uninstall(package)
-            installed_before = self.choco.installed()
-            print("INSTALLED BEFORE UPGRADE:") ; pprint(installed_before)
-            try:
-                self.choco.upgrade(package, source=data_dir)
-                installed_after = self.choco.installed()
-                print("INSTALLED AFTER UPGRADE:") ; pprint(installed_after)
-            finally:
-                if package in self.choco.installed(): self.choco.uninstall(package)
 
     def test_uninstall(self):
         """Uninstalls packages."""
-        with self.lock:
-            print()
-            package = "py_choco.Test3"
-            try:
-                self.choco.install(package, source=data_dir)
-                installed_before = self.choco.installed()
-                print("INSTALLED BEFORE UNINSTALL:") ; pprint(installed_before)
-                self.choco.uninstall(package)
-                installed_after = self.choco.installed()
-                print("INSTALLED AFTER UNINSTALL:") ; pprint(installed_after)
-            except:
-                if package in self.choco.installed(): self.choco.uninstall(package)
+        print()
+        package = "py_choco.Test3"
+        try:
+            self.choco.install(package, source=data_dir)
+            installed_before = self.choco.installed()
+            print("INSTALLED BEFORE UNINSTALL:") ; pprint(installed_before)
+            self.choco.uninstall(package)
+            installed_after = self.choco.installed()
+            print("INSTALLED AFTER UNINSTALL:") ; pprint(installed_after)
+        except:
+            if package in self.choco.installed(): self.choco.uninstall(package)
 
     def test_pinned(self):
         """Retrieves a list of packages suppress for upgrades."""
@@ -170,28 +173,26 @@ class ChocolateyCase(unittest.TestCase):
 
     def test_pin_add(self):
         """Suppress upgrades for a package."""
-        with self.lock:
-            print()
-            pinned_saved = self.choco.pinned()
-            self.choco.pin_remove(pkg_id="chocolatey")
-            pinned_before = self.choco.pinned()
-            print("PINNED BEFORE ADD:") ; pprint(pinned_before)
-            self.choco.pin_add(pkg_id="chocolatey")
-            pinned_after = self.choco.pinned()
-            print("PINNED AFTER ADD:") ; pprint(pinned_after)
-            self.choco.pin_remove(pkg_id="chocolatey")
+        print()
+        pinned_saved = self.choco.pinned()
+        self.choco.pin_remove(pkg_id="chocolatey")
+        pinned_before = self.choco.pinned()
+        print("PINNED BEFORE ADD:") ; pprint(pinned_before)
+        self.choco.pin_add(pkg_id="chocolatey")
+        pinned_after = self.choco.pinned()
+        print("PINNED AFTER ADD:") ; pprint(pinned_after)
+        self.choco.pin_remove(pkg_id="chocolatey")
 
     def test_pin_remove(self):
         """Remove suppressing of upgrades for a package."""
-        with self.lock:
-            print()
-            pinned_saved = self.choco.pinned()
-            self.choco.pin_add(pkg_id="chocolatey")
-            pinned_before = self.choco.pinned()
-            print("PINNED BEFORE REMOVE:") ; pprint(pinned_before)
-            self.choco.pin_remove(pkg_id="chocolatey")
-            pinned_after = self.choco.pinned()
-            print("PINNED AFTER REMOVE:") ; pprint(pinned_after)
+        print()
+        pinned_saved = self.choco.pinned()
+        self.choco.pin_add(pkg_id="chocolatey")
+        pinned_before = self.choco.pinned()
+        print("PINNED BEFORE REMOVE:") ; pprint(pinned_before)
+        self.choco.pin_remove(pkg_id="chocolatey")
+        pinned_after = self.choco.pinned()
+        print("PINNED AFTER REMOVE:") ; pprint(pinned_after)
 
     def test_pack(self):
         """Packages nuspec, scripts, and other Chocolatey package resources

@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.1.1 (2023-10-11)
+------------------
+- Added missing source_add().
+- Fixes for source(s). Now works on unelevated mode.
+
 0.1.0 (2023-10-09)
 ------------------
 - Added support for non-elevated mode.

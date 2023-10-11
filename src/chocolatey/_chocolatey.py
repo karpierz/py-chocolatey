@@ -402,18 +402,27 @@ class Chocolatey:
         """Retrieve default sources."""
         self._omit_args(kwargs, "limit_output", "verbose")
         try:
-            output = self.cmd.sources("list", limit_output=True,
-                                      **self._capture_output, **kwargs)
+            output = self.cmd.source("list", limit_output=True,
+                                     **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
         return self._config(output.stdout, klass=Source)
+
+    def source_add(self, *, name: str, source: str, **kwargs) -> None:
+        """Add source."""
+        self._omit_args(kwargs)#, "verbose")
+        try:
+            self.cmd.source("add", name=name, source=source,
+                            **self._capture_output, **kwargs)
+        except run.CalledProcessError as exc:
+            self._handle_exception(exc)
 
     def source_enable(self, *, name: str, **kwargs) -> None:
         """Enable source."""
         self._omit_args(kwargs)#, "verbose")
         try:
-            self.cmd.sources("enable", name=name,
-                             **self._capture_output, **kwargs)
+            self.cmd.source("enable", name=name,
+                            **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -421,8 +430,8 @@ class Chocolatey:
         """Disable source."""
         self._omit_args(kwargs)#, "verbose")
         try:
-            self.cmd.sources("disable", name=name,
-                             **self._capture_output, **kwargs)
+            self.cmd.source("disable", name=name,
+                            **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -430,8 +439,8 @@ class Chocolatey:
         """Remove source."""
         self._omit_args(kwargs)#, "verbose")
         try:
-            self.cmd.sources("remove", name=name,
-                             **self._capture_output, **kwargs)
+            self.cmd.source("remove", name=name,
+                            **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 

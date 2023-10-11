@@ -11,4 +11,7 @@ pprint = partial(pprint, max_length=500)
 from chocolatey import Chocolatey
 choco = Chocolatey()
 
+sources = choco.sources()
+print(sources)
+
 input("Press a key...")

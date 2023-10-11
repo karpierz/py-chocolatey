@@ -27,7 +27,7 @@ class ChocolateyCmd:
 
     def __new__(cls, source: str = None):
         self = super().__new__(cls)
-        self.source = source
+        self._source = source
         return self
 
     ## Low-level Chocolatey API ##
@@ -114,9 +114,12 @@ class ChocolateyCmd:
         """Pushes a compiled nupkg to a source."""
         return self._cmd("push", *args, source=self._get_source(kwargs), **kwargs)
 
-    def sources(self, *args, **kwargs) -> run.CompletedProcess:
+    def source(self, *args, **kwargs) -> run.CompletedProcess:
         """View and configure default sources."""
-        return self._cmd("sources", *args, source=self._get_source(kwargs), **kwargs)
+        cmd = self._cmd if args[0] in ("list",) else self._cmd_elevated
+        return cmd("source", *args, **kwargs)
+
+    sources = source  # alias for source
 
     def template(self, *args, **kwargs) -> run.CompletedProcess:
         """Get information about installed templates."""
@@ -131,7 +134,7 @@ class ChocolateyCmd:
     #------ internals ------#
 
     def _get_source(self, kwargs):
-        return kwargs.pop("source", f'"{self.source}"' if self.source else False)
+        return kwargs.pop("source", f'"{self._source}"' if self._source else False)
 
     _common_args = ["--accept-license", "--no-progress"]
 

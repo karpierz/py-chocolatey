@@ -27,6 +27,12 @@ class ChocolateyCmdCase(unittest.TestCase):
         cls.choco_cmd = ChocolateyCmd()
         cls.lock = threading.Lock()
 
+    def setUp(self):
+        self.lock.acquire()
+
+    def tearDown(self):
+        self.lock.release()
+
     ## Low-level Chocolatey API ##
 
     def test_choco(self):
