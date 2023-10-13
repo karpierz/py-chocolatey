@@ -7,10 +7,11 @@ Chocolatey API
 """
 
 from typing import Any, Optional, Union, Sequence, Tuple, List, Dict
-#from typing import NamedTuple
 from dataclasses import dataclass
 from collections import defaultdict
 from pathlib import Path
+from tempfile
+from shutil
 #import enum
 
 from public import public
@@ -550,6 +551,18 @@ class Chocolatey:
             self.cmd.cache("remove", **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
+
+    @classmethod
+    def setup(cls):
+        """Setup chocolatey software."""
+        setup_dir = Path(__file__).resolve().parent/"choco-setup"
+        choco_pkg = next(setup_dir.glob("chocolatey.*.nupkg"))
+        # Install chocolatey
+        with tempfile.TemporaryDirectory() as temp_dir:
+            zip_file = Path(temp_dir)/"chocolatey.zip"
+            shutil.copy2(str(choco_pkg), str(zip_file))
+            run(shutil.which("powershell.exe"), "-ExecutionPolicy", "Bypass",
+                setup_dir/"install.ps1", "-ChocolateyDownloadUrl", zip_file)
 
     #------ internals ------#
 

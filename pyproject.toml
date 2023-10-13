@@ -8,7 +8,7 @@ requires = ['setuptools>=67.8.0', 'wheel>=0.40.0', 'packaging>=23.1.0', 'tox>=3.
 
 [project]
 name        = 'py-chocolatey'
-version     = '0.1.2'
+version     = '0.2.0'
 description = 'API for Chocolatey, the Package Manager for Windows.'
 license = { text = 'zlib/libpng License ; https://opensource.org/licenses/Zlib' }
 authors = [
