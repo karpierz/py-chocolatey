@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.1 (2023-10-13)
+------------------
+- Fix for setup.
+
 0.2.0 (2023-10-12)
 ------------------
 - Added Chocolatey.setup() for install chocolatey.
