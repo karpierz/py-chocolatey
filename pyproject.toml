@@ -8,7 +8,7 @@ requires = ['setuptools>=67.8.0', 'wheel>=0.40.0', 'packaging>=23.1.0', 'tox>=3.
 
 [project]
 name        = 'py-chocolatey'
-version     = '0.2.1'
+version     = '0.2.2'
 description = 'API for Chocolatey, the Package Manager for Windows.'
 license = { text = 'zlib/libpng License ; https://opensource.org/licenses/Zlib' }
 authors = [
@@ -33,6 +33,7 @@ classifiers = [
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
     'Programming Language :: Python :: 3 :: Only',
     'Programming Language :: Python :: Implementation :: CPython',
     'Topic :: Software Development :: Libraries :: Python Modules',
@@ -160,9 +161,9 @@ count = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py{37,38,39,310,311}, docs
+envlist = py{37,38,39,310,311,312}, docs
 minversion = 3.28.0,<4
-isolated_build = True
+isolated_build = true
 skip_missing_interpreters = true
 requires =
     {[base]setup_requires}
@@ -223,13 +224,13 @@ deps =
 basepython = python3.7
 setenv =
     PKG_PVER=`{envpython} -c "import platform ; print(''.join(platform.python_version_tuple()[:2]))" 2> nul`
-    PKG_NAME=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ;import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_name(),     end='')" 2> nul`
-    PKG_DIST=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ;import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_fullname(), end='')" 2> nul`
+    PKG_NAME=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_name(),     end='')" 2> nul`
+    PKG_DIST=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_fullname(), end='')" 2> nul`
 commands =
     {[testenv]commands}
     {[testenv:docs]commands}
-    {envpython} -c "from setuptools import setup ; setup()" --quiet sdist --formats=zip
-    {envpython} -c "from setuptools import setup ; setup()" --quiet bdist_wheel
+    {envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; from setuptools import setup ; setup()" --quiet sdist --formats=zip
+    {envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; from setuptools import setup ; setup()" --quiet bdist_wheel
     # check out for PyPi
     {envpython} -m twine check dist/*
 extras =

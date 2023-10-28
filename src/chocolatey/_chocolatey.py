@@ -328,12 +328,12 @@ class Chocolatey:
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
-    def push(self, nupkg_file_path=False, **kwargs) -> None:
+    def push(self, nupkg_file_path=False, yes=True, **kwargs) -> None:
         """Pushes a compiled nupkg to a source."""
         self._omit_args(kwargs)#, "verbose")
         try:
             arg = [nupkg_file_path] if nupkg_file_path is not False else []
-            self.cmd.push(*arg, **kwargs)
+            self.cmd.push(*arg, yes=yes, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 

@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.2.2 (2023-10-27)
+------------------
+- Added --yes option as default for push().
+
 0.2.1 (2023-10-13)
 ------------------
 - Fix for setup.
