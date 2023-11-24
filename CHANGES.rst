@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.0 (2023-11-22)
+------------------
+- Drop support for Python 3.7.
+- Setup (dependencies) update.
+
 0.2.2 (2023-10-27)
 ------------------
 - Added --yes option as default for push().

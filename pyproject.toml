@@ -4,11 +4,11 @@
 
 [build-system]
 build-backend = 'setuptools.build_meta'
-requires = ['setuptools>=67.8.0', 'wheel>=0.40.0', 'packaging>=23.1.0', 'tox>=3.28.0,<4']
+requires = ['setuptools>=68.2.2', 'wheel>=0.41.3', 'packaging>=23.2.0', 'tox>=3.28.0,<4']
 
 [project]
 name        = 'py-chocolatey'
-version     = '0.2.2'
+version     = '0.3.0'
 description = 'API for Chocolatey, the Package Manager for Windows.'
 license = { text = 'zlib/libpng License ; https://opensource.org/licenses/Zlib' }
 authors = [
@@ -28,7 +28,6 @@ classifiers = [
     'Natural Language :: Polish',
     'Programming Language :: Python',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
@@ -38,21 +37,22 @@ classifiers = [
     'Programming Language :: Python :: Implementation :: CPython',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
-requires-python = '>=3.7.0,<4.0.0'
+requires-python = '>=3.8.1,<4.0.0'
 dependencies = [
     # mandatory
-    'setuptools>=67.8.0',
+    'setuptools>=68.2.2',
     'pkg_about>=1.0.8',
     # others
-    'atpublic>=3.1.2',
     'nocasedict>=2.0.1',
-    'regex>=2023.6.3',
+    'atpublic>=4.0.0',
+    'regex>=2023.10.3',
 ]
 dynamic = ['readme']
 [project.optional-dependencies]
 doc = [
-    'docutils>=0.14,<0.19',
-    'Sphinx>=5.3.0',
+    'docutils>=0.18.1,<0.20',
+    'Sphinx>=7.1.2',
+    'sphinx-toolbox>=3.5.0',
     'sphinx-tabs>=3.4.1',
     'sphinx-copybutton>=0.5.1',
     'sphinxcontrib-spelling>=7.7.0',
@@ -61,8 +61,8 @@ doc = [
     'nbsphinx>=0.8.10',
 ]
 test = [
-    'deepdiff>=6.3.0',
-    'rich>=13.6.0',
+    'deepdiff>=6.7.1',
+    'rich>=13.7.0',
 ]
 [project.urls]
 Homepage      = 'https://pypi.org/project/py-chocolatey/'
@@ -161,7 +161,7 @@ count = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py{37,38,39,310,311,312}, docs
+envlist = py{38,39,310,311,312}, docs
 minversion = 3.28.0,<4
 isolated_build = true
 skip_missing_interpreters = true
@@ -174,9 +174,9 @@ requires =
 
 [base]
 setup_requires =
-    pip>=23.1.2
-    setuptools>=67.8.0
-    wheel>=0.40.0
+    pip>=23.3.1
+    setuptools>=68.2.2
+    wheel>=0.41.3
 packagesubdir = chocolatey
 
 [testenv]
@@ -189,7 +189,7 @@ deps =
     {[base]setup_requires}
 
 [testenv:prepare]
-basepython = python3.7
+basepython = python3.11
 skip_install = true
 allowlist_externals =
     cmd
@@ -198,7 +198,7 @@ commands =
     cmd /C if exist .build.cmd .build.cmd
 
 [testenv:coverage]
-basepython = python3.7
+basepython = python3.11
 commands =
     {envpython} -m coverage erase
     -{envpython} -B -m coverage run -m tests {posargs}
@@ -206,24 +206,24 @@ commands =
     {envpython} -m coverage html
 deps =
     {[testenv]deps}
-    coverage>=7.2.7
+    coverage>=7.3.2
     diff-cover>=7.6.0
 
 [testenv:docs]
-basepython = python3.7
+basepython = python3.11
 commands =
     {envpython} -m sphinxlint --ignore .tox --ignore build --ignore dist
    #{envpython} -m sphinx.apidoc -f {envsitepackagesdir}/{[base]packagesubdir}
-    {envpython} -c "from setuptools import setup ; setup()" -v build_sphinx -b html -E
-   #{envpython} -c "from setuptools import setup ; setup()" -v build_sphinx -b linkcheck
-    {envpython} -c "from setuptools import setup ; setup()" -v build_sphinx -b doctest
+    {envpython} -m sphinx.cmd.build -W -a -b html -E   ./docs ./build/docs/html
+   #{envpython} -m sphinx.cmd.build -W -a -b linkcheck ./docs ./build/docs/html
+    {envpython} -m sphinx.cmd.build -W -a -b doctest   ./docs ./build/docs/html
 extras = doc
 deps =
 
 [testenv:build]
-basepython = python3.7
+basepython = python3.11
 setenv =
-    PKG_PVER=`{envpython} -c "import platform ; print(''.join(platform.python_version_tuple()[:2]))" 2> nul`
+    PKG_PVER=`{envpython} -c "import platform ; print(''.join(platform.python_version_tuple()[:2]), end='')" 2> nul`
     PKG_NAME=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_name(),     end='')" 2> nul`
     PKG_DIST=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_fullname(), end='')" 2> nul`
 commands =
@@ -242,7 +242,7 @@ deps =
     twine>=4.0.2
 
 [testenv:publish]
-basepython = python3.7
+basepython = python3.11
 setenv =
     {[testenv:build]setenv}
 commands =
@@ -256,15 +256,16 @@ deps =
     twine>=4.0.2
 
 [testenv:lint]
-basepython = python3.7
+basepython = python3.11
 commands =
-    #{envpython} -m flake8p {envsitepackagesdir}/{[base]packagesubdir}/
+    #{envpython} -m flake8 {envsitepackagesdir}/{[base]packagesubdir}/
 extras =
 deps =
     {[testenv]deps}
-    flake8>=5.0.4
+    flake8>=6.1.0
     flake8-pyproject>=1.2.3
     flake8-docstrings>=1.7.0
     pep8-naming>=0.13.3
-    flake8-builtins>=2.1.0
+    flake8-builtins>=2.2.0
+    flake8-deprecated>=2.2.1
 """
