@@ -1,6 +1,11 @@
 Changelog
 =========
 
+0.3.1 (2023-11-24)
+------------------
+- Fix for info(). Now works for local_only=True.
+- Setup cleanup.
+
 0.3.0 (2023-11-22)
 ------------------
 - Drop support for Python 3.7.

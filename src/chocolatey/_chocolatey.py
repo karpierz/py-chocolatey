@@ -232,8 +232,10 @@ class Chocolatey:
         # if not found, returns None
         if not output.stdout.strip():
             return None
-        pkg_info = list(self._packages(output.stdout,
-                                       klass=PackageInfo).values())[0]
+        packages = self._packages(output.stdout, klass=PackageInfo)
+        if not packages:
+            return None
+        pkg_info = list(packages.values())[0]
         try:
             output = self.cmd.info(pkg_id,
                                    local_only=local_only,
@@ -610,7 +612,7 @@ class Chocolatey:
                               rf"{info_key_pattern}:[\t ]*{info_value_pattern}"
         info_items_pattern  = rf"(?P<info_items>({info_item_pattern})+)"
         info_footer_pattern = r"([\t ]*\n)+?\n[\t ]*(?P<pkgs_found>\d+)" + \
-                              r"[\t ]+packages[\t ]+found[\t ]*\.[\t ]*"
+                              r"[\t ]+packages[\t ]+(found|installed)[\t ]*\.[\t ]*"
 
         match = re.match(info_header_pattern +
                          info_items_pattern +
