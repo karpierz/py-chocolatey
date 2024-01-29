@@ -1,10 +1,8 @@
-# Copyright (c) 2022-2023 Adam Karpierz
+# Copyright (c) 2022 Adam Karpierz
 # Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# https://opensource.org/license/zlib
 
-"""
-Low-level Chocolatey API
-"""
+"""Low-level Chocolatey API"""
 
 import sys
 import ctypes
@@ -24,7 +22,6 @@ class ChocolateyCmd:
     _CHOCOLATEY_EXE = Path("C:/ProgramData/chocolatey/bin/choco.exe")
     _LAUNCHER_EXE   = Path(__file__).resolve().parent/"exe-bin"/"launcher.exe"
 
-
     def __new__(cls, source: str = None):
         self = super().__new__(cls)
         self._source = source
@@ -36,7 +33,7 @@ class ChocolateyCmd:
         """Run raw choco executable."""
         return self._cmd(*args, source=self._get_source(kwargs), **kwargs)
 
-    def help(self, *args, **kwargs) -> run.CompletedProcess:
+    def help(self, *args, **kwargs) -> run.CompletedProcess:  # noqa: A003
         """Displays top level help information for choco."""
         return self._cmd("help", *args, source=self._get_source(kwargs), **kwargs)
 
@@ -73,16 +70,20 @@ class ChocolateyCmd:
 
     def info(self, *args, **kwargs) -> run.CompletedProcess:
         """Retrieves package information.
-           Shorthand for choco search pkgname --exact --verbose."""
+
+        Shorthand for choco search pkgname --exact --verbose.
+        """
         return self._cmd("info", *args, source=self._get_source(kwargs), **kwargs)
 
-    def list(self, *args, **kwargs) -> run.CompletedProcess:
+    def list(self, *args, **kwargs) -> run.CompletedProcess:  # noqa: A003
         """Lists local packages."""
         return self._cmd("list", *args, source=self._get_source(kwargs), **kwargs)
 
     def outdated(self, *args, **kwargs) -> run.CompletedProcess:
         """Retrieves information about packages that are outdated.
-           Similar to upgrade all --noop."""
+
+        Similar to upgrade all --noop.
+        """
         return self._cmd("outdated", *args, source=self._get_source(kwargs), **kwargs)
 
     def install(self, *args, **kwargs) -> run.CompletedProcess:
@@ -91,7 +92,7 @@ class ChocolateyCmd:
 
     def upgrade(self, *args, **kwargs) -> run.CompletedProcess:
         """Upgrades packages from various sources."""
-        output = self._cmd_elevated("upgrade", *args, source=self._get_source(kwargs), **kwargs)
+        return self._cmd_elevated("upgrade", *args, source=self._get_source(kwargs), **kwargs)
 
     def uninstall(self, *args, **kwargs) -> run.CompletedProcess:
         """Uninstalls a package."""
@@ -131,7 +132,7 @@ class ChocolateyCmd:
         """Re-installs Chocolatey base files."""
         return self._cmd("unpackself", *args, source=self._get_source(kwargs), **kwargs)
 
-    #------ internals ------#
+    # ----- internals ----- #
 
     def _get_source(self, kwargs):
         return kwargs.pop("source", f'"{self._source}"' if self._source else False)
@@ -142,8 +143,8 @@ class ChocolateyCmd:
     def _run_wrapper(cls, run_fun, *args, __format="--{}", **kwargs):
         normal_args = (arg for arg in args if arg is not None)
         allowed_kwargs, reserved_kwargs = _run.split_kwargs(kwargs, cls._run_reserved_kwargs)
-        allowed_args = sum(([__format.format(key.replace("_", "-") +
-                                             ("" if val is True else f"={val}"))]
+        allowed_args = sum(([__format.format(key.replace("_", "-")
+                                             + ("" if val is True else f"={val}"))]
                             for key, val in allowed_kwargs.items() if val is not False),
                            []) + cls._common_args
         return run_fun(*normal_args, *allowed_args, **reserved_kwargs)

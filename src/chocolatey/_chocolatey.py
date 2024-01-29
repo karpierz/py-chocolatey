@@ -1,18 +1,18 @@
-# Copyright (c) 2022-2023 Adam Karpierz
+# Copyright (c) 2022 Adam Karpierz
 # Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# https://opensource.org/license/zlib
 
-"""
-Chocolatey API
-"""
+"""Chocolatey API"""
 
-from typing import Any, Optional, Union, Sequence, Tuple, List, Dict
+from typing import Any, Optional, Union, List, Dict
 from dataclasses import dataclass
 from collections import defaultdict
 from pathlib import Path
 import tempfile
 import shutil
-#import enum
+import textwrap
+# import enum
+# from rich import print
 
 from public import public
 from nocasedict import NocaseDict
@@ -34,7 +34,7 @@ class version_info:
 @public
 @dataclass
 class Package:
-    id: str
+    id: str  # noqa: A003
     version: str
 
 
@@ -45,6 +45,7 @@ class PackageOutdated(Package):
     pinned: bool = False
 
     def __post_init__(self):
+        """Post-init"""
         self.pinned = _str2bool("pinned", self.pinned)
 
 
@@ -66,6 +67,7 @@ class Config:
     description: str = ""
 
     def __post_init__(self):
+        """Post-init"""
         self.value = _str2none("value", self.value)
         self.value = _str2bool("value", self.value, with_check=False)
 
@@ -84,6 +86,7 @@ class Source:
     admin_only: bool = False
 
     def __post_init__(self):
+        """Post-init"""
         self.disabled     = _str2bool("disabled", self.disabled)
         self.user         = _str2none("user", self.user)
         self.password     = _str2none("password", self.password)
@@ -102,6 +105,7 @@ class Feature:
     # set_explicitly: bool = False
 
     def __post_init__(self):
+        """Post-init"""
         self.enabled = _str2bool("enabled", self.enabled,
                                  literals=("enabled", "disabled"))
 
@@ -151,7 +155,7 @@ class Chocolatey:
         parts[len(parts):] =  (4 - len(parts)) * [0]
         return version_info(*parts)
 
-    def help(self, *, command: str = None) -> str:
+    def help(self, *, command: str = None) -> str:  # noqa: A003
         """Gets the help information for choco and choco commands."""
         try:
             if not command:
@@ -194,15 +198,15 @@ class Chocolatey:
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
         packages = self._packages(output.stdout, klass=PackageOutdated)
-        for id, val in list(packages.items()):
+        for pkg_id, val in list(packages.items()):
             pkgs = [val] if isinstance(val, PackageOutdated) else val
             for idx, pkg in enumerate(pkgs[:]):
                 if pkg.version == pkg.available_version: del pkgs[idx]
-            if not pkgs: del packages[id]
+            if not pkgs: del packages[pkg_id]
         return packages
 
     def search(self, filter=False, *, all_versions=True, **kwargs) \
-        -> Dict[str, List[Package]]:
+            -> Dict[str, List[Package]]:  # noqa: A002
         """Searches remote packages."""
         self._omit_args(kwargs, "limit_output", "page", "page_size",
                         "verbose", "detail", "detailed", "idonly", "id_only")
@@ -220,7 +224,7 @@ class Chocolatey:
         return self._packages(out, klass=Package)
 
     def info(self, *, pkg_id: str, local_only=False, **kwargs) \
-        -> Optional[PackageInfo]:
+          -> Optional[PackageInfo]:
         """Retrieves package information."""
         self._omit_args(kwargs, "limit_output", "verbose")
         try:
@@ -247,7 +251,7 @@ class Chocolatey:
     def export(self, output_file_path=False, *, include_version=True,
                **kwargs) -> None:
         """Exports list of currently installed packages."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.export(output_file_path=output_file_path,
                             include_version=include_version,
@@ -260,7 +264,7 @@ class Chocolatey:
         if not pkg_ids:
             raise TypeError("install() "
                             "missing at least 1 required positional argument")
-        self._omit_args(kwargs, "yes")#, "verbose")
+        self._omit_args(kwargs, "yes")  # , "verbose")
         try:
             self.cmd.install(*pkg_ids, yes=yes, **kwargs)
         except run.CalledProcessError as exc:
@@ -272,7 +276,7 @@ class Chocolatey:
         if not pkg_ids:
             raise TypeError("upgrade() "
                             "missing at least 1 required positional argument")
-        self._omit_args(kwargs, "install_if_not_installed", "yes")#, "verbose")
+        self._omit_args(kwargs, "install_if_not_installed", "yes")  # , "verbose")
         try:
             self.cmd.upgrade(*pkg_ids,
                              install_if_not_installed=install_if_not_installed,
@@ -285,7 +289,7 @@ class Chocolatey:
         if not pkg_ids:
             raise TypeError("uninstall() "
                             "missing at least 1 required positional argument")
-        self._omit_args(kwargs, "yes")#, "verbose")
+        self._omit_args(kwargs, "yes")  # , "verbose")
         try:
             self.cmd.uninstall(*pkg_ids, yes=yes, **kwargs)
         except run.CalledProcessError as exc:
@@ -303,7 +307,7 @@ class Chocolatey:
 
     def pin_add(self, *, pkg_id: str, **kwargs) -> None:
         """Suppress upgrades for a package."""
-        self._omit_args(kwargs, "reason")#, "verbose") # --reason don't work
+        self._omit_args(kwargs, "reason")  # , "verbose") # --reason don't work
         try:
             self.cmd.pin("add", name=pkg_id,
                          # reason=reason if reason is False else f'"{reason}"',
@@ -313,7 +317,7 @@ class Chocolatey:
 
     def pin_remove(self, *, pkg_id: str, **kwargs) -> None:
         """Remove suppressing of upgrades for a package."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.pin("remove", name=pkg_id, **kwargs)
         except run.CalledProcessError as exc:
@@ -321,9 +325,8 @@ class Chocolatey:
 
     def pack(self, nuspec_file_path=False, *, output_directory=False,
              **kwargs) -> None:
-        """Packages nuspec, scripts, and other Chocolatey package resources
-           into a nupkg file."""
-        self._omit_args(kwargs)#, "verbose")
+        """Packages nuspec, scripts, and other package resources into a nupkg file."""
+        self._omit_args(kwargs)  # , "verbose")
         try:
             arg = [nuspec_file_path] if nuspec_file_path is not False else []
             self.cmd.pack(*arg, output_directory=output_directory, **kwargs)
@@ -332,7 +335,7 @@ class Chocolatey:
 
     def push(self, nupkg_file_path=False, yes=True, **kwargs) -> None:
         """Pushes a compiled nupkg to a source."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             arg = [nupkg_file_path] if nupkg_file_path is not False else []
             self.cmd.push(*arg, yes=yes, **kwargs)
@@ -341,7 +344,7 @@ class Chocolatey:
 
     def unpackself(self, **kwargs) -> None:
         """Re-installs Chocolatey base files."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.unpackself(**kwargs)
         except run.CalledProcessError as exc:
@@ -352,7 +355,7 @@ class Chocolatey:
                     **kwargs) -> None:
         """Creates template files for creating a new Chocolatey package."""
         # <name> [<options/switches>] [<property=value> <propertyN=valueN>]
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         props = [f'"{prop}={value}"' for prop, value in properties.items()]
         try:
             self.cmd.new(pkg_id, *props, **kwargs)
@@ -373,7 +376,7 @@ class Chocolatey:
 
     def config_get(self, *, name: str, **kwargs) -> Union[str, bool]:
         """Get config value."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             output = self.cmd.config("get", name=name, limit_output=True,
                                      **self._capture_output, **kwargs)
@@ -386,7 +389,7 @@ class Chocolatey:
 
     def config_set(self, *, name: str, value, **kwargs) -> None:
         """Set config value."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.config("set", name=name, value=(_none2str(name, value)
                                                      if value is None else
@@ -397,7 +400,7 @@ class Chocolatey:
 
     def config_unset(self, *, name: str, **kwargs) -> None:
         """Unset config."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.config("unset", name=name,
                             **self._capture_output, **kwargs)
@@ -416,7 +419,7 @@ class Chocolatey:
 
     def source_add(self, *, name: str, source: str, **kwargs) -> None:
         """Add source."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.source("add", name=name, source=source,
                             **self._capture_output, **kwargs)
@@ -425,7 +428,7 @@ class Chocolatey:
 
     def source_enable(self, *, name: str, **kwargs) -> None:
         """Enable source."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.source("enable", name=name,
                             **self._capture_output, **kwargs)
@@ -434,7 +437,7 @@ class Chocolatey:
 
     def source_disable(self, *, name: str, **kwargs) -> None:
         """Disable source."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.source("disable", name=name,
                             **self._capture_output, **kwargs)
@@ -443,7 +446,7 @@ class Chocolatey:
 
     def source_remove(self, *, name: str, **kwargs) -> None:
         """Remove source."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.source("remove", name=name,
                             **self._capture_output, **kwargs)
@@ -462,7 +465,7 @@ class Chocolatey:
 
     def feature_get(self, *, name: str, **kwargs) -> bool:
         """Get feature value."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             output = self.cmd.feature("get", name=name,
                                       **self._capture_output, **kwargs)
@@ -473,7 +476,7 @@ class Chocolatey:
 
     def feature_enable(self, *, name: str, **kwargs) -> None:
         """Enable feature."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.feature("enable", name=name,
                              **self._capture_output, **kwargs)
@@ -482,7 +485,7 @@ class Chocolatey:
 
     def feature_disable(self, *, name: str, **kwargs) -> None:
         """Disable feature."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.feature("disable", name=name,
                              **self._capture_output, **kwargs)
@@ -501,7 +504,7 @@ class Chocolatey:
 
     def apikey_add(self, *, source: str, api_key: str, **kwargs) -> None:
         """Add API key for source."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.apikey("add", source=source, api_key=api_key,
                             **self._capture_output, **kwargs)
@@ -510,7 +513,7 @@ class Chocolatey:
 
     def apikey_remove(self, *, source: str, **kwargs) -> None:
         """Remove API key for source."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.apikey("remove", source=source,
                             **self._capture_output, **kwargs)
@@ -538,9 +541,8 @@ class Chocolatey:
         return self._config(output.stdout, klass=Template)[0]
 
     def cache_list(self, **kwargs) -> None:
-        """Displays information about the local HTTP caches used to store
-           queries."""
-        self._omit_args(kwargs)#, "verbose")
+        """Displays information about the local HTTP caches used to store queries."""
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.cache("list", **kwargs)
         except run.CalledProcessError as exc:
@@ -548,7 +550,7 @@ class Chocolatey:
 
     def cache_remove(self, **kwargs) -> None:
         """Remove the local HTTP caches used to store queries."""
-        self._omit_args(kwargs)#, "verbose")
+        self._omit_args(kwargs)  # , "verbose")
         try:
             self.cmd.cache("remove", **kwargs)
         except run.CalledProcessError as exc:
@@ -566,7 +568,7 @@ class Chocolatey:
             run(shutil.which("powershell.exe"), "-ExecutionPolicy", "Bypass",
                 setup_dir/"install.ps1", "-ChocolateyDownloadUrl", zip_file)
 
-    #------ internals ------#
+    # ----- internals ----- #
 
     # OUTPUT_QUIET ERROR_QUIET
     # quiet_stdout=True,
@@ -582,9 +584,9 @@ class Chocolatey:
         lines.sort(key=str.casefold)
         packages = defaultdict(list)
         for line in lines:
-            #print("LINE:", line)
+            # print("LINE:", line)
             package = klass(*line.split("|"))
-            #print("PKG: ", package)
+            # print("PKG: ", package)
             if not self._allow_multiple:
                 packages[package.id] = package
             else:
@@ -598,28 +600,36 @@ class Chocolatey:
         if not out.strip() or pkg_info is None:
             return None
 
+        out = out.replace("\r\n", "\n")
+
         # pre-parse
-        out = re.sub("[\t ]*\|", "\n", out)
-        out = re.sub("\n[\t ]*Package url[\t ]*\n",
+        out = re.sub(r"[\t ]*\|", "\n", out)
+        out = re.sub(r"\n[\t ]*Package url[\t ]*\n",
                      "\n Package url: n/a\n", out)
         # parse
-        info_header_pattern = rf"\s*Chocolatey[\t ]+v.+?[\t ]*\n" + \
-                              rf"\s*(?P<pkg_id>{pkg_info.id})" + \
-                              rf"[\t ]+(?P<pkg_version>{pkg_info.version})[\t ]*"
-        info_key_pattern    = r"(?P<info_key>[^\t :]+([\t ]+[^\t :]+)*)[\t ]*"
-        info_value_pattern  = r"(?P<info_value>.*(\n.*)*?)"
-        info_item_pattern   = rf"([\t ]*\n)*?\n[\t ]{{0,2}}" + \
-                              rf"{info_key_pattern}:[\t ]*{info_value_pattern}"
-        info_items_pattern  = rf"(?P<info_items>({info_item_pattern})+)"
-        info_footer_pattern = r"([\t ]*\n)+?\n[\t ]*(?P<pkgs_found>\d+)" + \
-                              r"[\t ]+packages[\t ]+(found|installed)[\t ]*\.[\t ]*"
+        info_header_pattern = r"\s*Chocolatey[\t ]+v.+?([\t ]*\n)+" + \
+                              rf"\s*{pkg_info.id}[\t ]+{pkg_info.version}([\t ]*\n)+"
+        info_pattern        = r"(?P<info>(.*\n)*)"
+        info_footer_pattern = r"\n(?P<pkgs_found>\d+)" + \
+                              r"[\t ]+packages[\t ]+(found|installed)[\t ]*\.([\t ]*\n)*"
+        match = re.match(info_header_pattern
+                         + info_pattern
+                         + info_footer_pattern, out)
+        info_text = textwrap.dedent(match.captures("info")[0])
+        if not info_text.endswith("\n"): info_text += "\n"
 
-        match = re.match(info_header_pattern +
-                         info_items_pattern +
-                         info_footer_pattern, out)
+        info_key_pattern   = r"(?P<info_key>[^\t :]+([\t ]+[^\t :]+)*)"
+        info_value_pattern = r"(?P<info_value>.*(\n([\t ]+.*)?)*)"
+        info_item_pattern  = rf"{info_key_pattern}[\t ]*:[\t ]*{info_value_pattern}"
+        info_items_pattern = rf"(?P<info_items>({info_item_pattern}\n)+)"
+
+        match = re.match(info_items_pattern, info_text)
 
         info = NocaseDict(zip(match.captures("info_key"),
                               match.captures("info_value")))
+        # print("============================")
+        # print(dict(info))
+        # print("============================")
         pkg_info.description = info.pop("Description", "")
         pkg_info.title       = info.pop("Title", "")
         pkg_info.summary     = info.pop("Summary", "")
@@ -657,13 +667,15 @@ class Chocolatey:
 
     def _handle_exception(self, exc, **kwargs):
         raise exc
-        #raise ChocolateyError(???)
+        # raise ChocolateyError(???)
 
 
 @public
 class ChocolateyError(RuntimeError):
-    """ """
+    """Chocolatey Error"""
+
     def __init__(self, *args, **kwargs):
+        """Init"""
         super().__init__(*args, **kwargs)
 
 
@@ -687,8 +699,8 @@ def _bool2str(name: str, value: Any, *,
 def _str2int(name: str, value: Any, *, with_check=True):
     if not isinstance(value, str):
         return value
-    if not (value.isdigit() or
-            value[1:].isdigit() and value[1:] in ("+", "-")):
+    if not (value.isdigit()
+            or value[1:].isdigit() and value[1:] in ("+", "-")):
         if not with_check: return value
         raise _value_error(name, value)
     return int(value)

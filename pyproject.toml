@@ -1,16 +1,21 @@
-# Copyright (c) 2022-2023 Adam Karpierz
+# Copyright (c) 2022 Adam Karpierz
 # Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# https://opensource.org/license/zlib
 
 [build-system]
 build-backend = 'setuptools.build_meta'
-requires = ['setuptools>=68.2.2', 'wheel>=0.41.3', 'packaging>=23.2.0', 'tox>=3.28.0,<4']
+requires = ['setuptools>=68.2.2', 'wheel>=0.42.0', 'packaging>=23.2.0', 'tox>=4.11.3']
 
 [project]
 name        = 'py-chocolatey'
-version     = '0.3.1'
+version     = '0.4.0'
 description = 'API for Chocolatey, the Package Manager for Windows.'
-license = { text = 'zlib/libpng License ; https://opensource.org/licenses/Zlib' }
+urls.Homepage      = 'https://pypi.org/project/py-chocolatey/'
+urls.Documentation = 'https://py-chocolatey.readthedocs.io/'
+urls.Download      = 'https://pypi.org/project/py-chocolatey/'
+urls.Source        = 'https://github.com/karpierz/py-chocolatey'
+urls.Issues        = 'https://github.com/karpierz/py-chocolatey/issues'
+license = { text = 'zlib/libpng License ; https://opensource.org/license/zlib' }
 authors = [
     { name  = 'Adam Karpierz' },
     { email = 'adam@karpierz.net' },
@@ -35,22 +40,22 @@ classifiers = [
     'Programming Language :: Python :: 3.12',
     'Programming Language :: Python :: 3 :: Only',
     'Programming Language :: Python :: Implementation :: CPython',
+    'Programming Language :: Python :: Implementation :: PyPy',
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 requires-python = '>=3.8.1,<4.0.0'
 dependencies = [
     # mandatory
     'setuptools>=68.2.2',
-    'pkg_about>=1.0.8',
+    'pkg-about>=1.1.5',
     # others
     'nocasedict>=2.0.1',
     'atpublic>=4.0.0',
-    'regex>=2023.10.3',
+    'regex>=2023.12.25',
 ]
 dynamic = ['readme']
 [project.optional-dependencies]
 doc = [
-    'docutils>=0.18.1,<0.20',
     'Sphinx>=7.1.2',
     'sphinx-toolbox>=3.5.0',
     'sphinx-tabs>=3.4.1',
@@ -64,12 +69,6 @@ test = [
     'deepdiff>=6.7.1',
     'rich>=13.7.0',
 ]
-[project.urls]
-Homepage      = 'https://pypi.org/project/py-chocolatey/'
-Documentation = 'https://py-chocolatey.readthedocs.io/'
-Download      = 'https://pypi.org/project/py-chocolatey/'
-Source        = 'https://github.com/karpierz/chocolatey'
-Issues        = 'https://github.com/karpierz/chocolatey/issues'
 
 [project.scripts]
 #'chocolatey' = 'chocolatey.__main__:main'
@@ -103,6 +102,11 @@ chocolatey = [
     'exe-bin/*.exe',
 ]
 
+[tool.setuptools.exclude-package-data]
+'*' = ['*.c','*.h','*.cpp','*.hpp','*.cxx','*.hxx','*.pyx','*.pxd']
+chocolatey = [
+]
+
 [tool.coverage.run]
 source = [
     'chocolatey',
@@ -111,18 +115,16 @@ source = [
 omit = [
 ]
 data_file = '.tox/coverage/.coverage'
+plugins = ['covdefaults']
 
 [tool.coverage.report]
 exclude_lines = [
     # Regexes
     # Have to re-enable the standard pragma
-    'pragma: no cover',
-    'if\s+self\.debug\s+:',
-    'if\s+__debug__\s+:',
-    'raise (AssertionError|NotImplementedError)',
-    'if\s+(0|False)\s*:',
-    '''if\s+__name__.*\s*==\s*'__main__'\s*:''',
-    'if\s+__name__.*\s*==\s*"__main__"\s*:',
+    '^\s*if\s+self\.debug\s*:',
+    '^\s*if\s+__debug__\s*:',
+    '^\s*if\s+(0|False)\s*:',
+    '''if\s+__name__.*\s*==\s*['"]__main__['"]\s*:''',
     '^\s*@unittest\.skip\(',
     '^\s*@unittest\.skipIf\(sys\.platform\.startswith\("win"\)',
 ]
@@ -161,35 +163,44 @@ count = true
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py{38,39,310,311,312}, docs
-minversion = 3.28.0,<4
-isolated_build = true
+envlist = py{38,39,310,311,312}, pypy{39,310}, docs
+labels =
+    py = py{38,39,310,311,312}, pypy{39,310}
+    prepare = prepare
+    coverage = coverage
+    lint = lint
+    docs = docs
+    build  = py{38,39,310,311,312}, pypy{39,310}, docs, build
+    deploy = py{38,39,310,311,312}, pypy{39,310}, docs, build, publish
+minversion = 4.11.3
 skip_missing_interpreters = true
 requires =
-    {[base]setup_requires}
-    tox-venv>=0.4.0
-    tox-backticks>=0.3.0
+    {[base]deps}
+    virtualenv>=20.25.0
+    tox-backtick>=0.4.4
     tox-tags>=0.2.0
-    tox-run-before>=0.1.0
 
 [base]
-setup_requires =
-    pip>=23.3.1
+basepython = python3.11
+deps =
+    pip>=23.3.2
     setuptools>=68.2.2
-    wheel>=0.41.3
+    wheel>=0.42.0
 packagesubdir = chocolatey
 
 [testenv]
 passenv = WINDIR
+setenv =
+    PYTHONDONTWRITEBYTECODE = 1
 commands =
     {envpython} --version
-    {envpython} -B -m tests {posargs}
+    {envpython} -m tests {posargs}
 extras = test
 deps =
-    {[base]setup_requires}
+    {[base]deps}
 
 [testenv:prepare]
-basepython = python3.11
+basepython = {[base]basepython}
 skip_install = true
 allowlist_externals =
     cmd
@@ -198,71 +209,65 @@ commands =
     cmd /C if exist .build.cmd .build.cmd
 
 [testenv:coverage]
-basepython = python3.11
+basepython = {[base]basepython}
 commands =
     {envpython} -m coverage erase
-    -{envpython} -B -m coverage run -m tests {posargs}
+    -{envpython} -m coverage run -m tests {posargs}
     {envpython} -m coverage report
     {envpython} -m coverage html
 deps =
     {[testenv]deps}
-    coverage>=7.3.2
-    diff-cover>=7.6.0
+    coverage>=7.4.0
+    covdefaults>=2.3.0
+    diff-cover>=7.7.0
 
 [testenv:docs]
-basepython = python3.11
+basepython = {[base]basepython}
 commands =
     {envpython} -m sphinxlint --ignore .tox --ignore build --ignore dist
    #{envpython} -m sphinx.apidoc -f {envsitepackagesdir}/{[base]packagesubdir}
     {envpython} -m sphinx.cmd.build -W -a -b html -E   ./docs ./build/docs/html
-   #{envpython} -m sphinx.cmd.build -W -a -b linkcheck ./docs ./build/docs/html
+    {envpython} -m sphinx.cmd.build -W -a -b linkcheck ./docs ./build/docs/html
     {envpython} -m sphinx.cmd.build -W -a -b doctest   ./docs ./build/docs/html
 extras = doc
 deps =
 
 [testenv:build]
-basepython = python3.11
+depends = py{38,39,310,311,312}, pypy{39,310}, docs
+basepython = {[base]basepython}
 setenv =
-    PKG_PVER=`{envpython} -c "import platform ; print(''.join(platform.python_version_tuple()[:2]), end='')" 2> nul`
-    PKG_NAME=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_name(),     end='')" 2> nul`
-    PKG_DIST=`{envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_fullname(), end='')" 2> nul`
+    {[testenv]setenv}
+    PKG_PVER=`{envpython} -W ignore -c "import platform ; print(''.join(platform.python_version_tuple()[:2]), end='')" 2> nul`
+    PKG_NAME=`{envpython} -W ignore -c "import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_name(),     end='')" 2> nul`
+    PKG_DIST=`{envpython} -W ignore -c "import setuptools ; setuptools._distutils.core._setup_stop_after='config' ; print(setuptools.setup().metadata.get_fullname(), end='')" 2> nul`
 commands =
-    {[testenv]commands}
-    {[testenv:docs]commands}
-    {envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; from setuptools import setup ; setup()" --quiet sdist --formats=zip
-    {envpython} -c "import warnings ; warnings.filterwarnings('ignore') ; from setuptools import setup ; setup()" --quiet bdist_wheel
+    {envpython} -W ignore -c "from setuptools import setup ; setup()" --quiet sdist --formats=zip
+    {envpython} -W ignore -c "from setuptools import setup ; setup()" --quiet bdist_wheel
     # check out for PyPi
     {envpython} -m twine check dist/*
-extras =
-    {[testenv]extras}
-    {[testenv:docs]extras}
 deps =
     {[testenv]deps}
-    {[testenv:docs]deps}
     twine>=4.0.2
 
 [testenv:publish]
-basepython = python3.11
-setenv =
-    {[testenv:build]setenv}
+depends = build
+basepython = {[base]basepython}
+skip_install = true
 commands =
-    {[testenv:build]commands}
     # publish on PyPi
     {envpython} -m twine upload dist/*
 extras =
-    {[testenv:build]extras}
 deps =
-    {[testenv:build]deps}
     twine>=4.0.2
 
 [testenv:lint]
-basepython = python3.11
+basepython = {[base]basepython}
 commands =
-    #{envpython} -m flake8 {envsitepackagesdir}/{[base]packagesubdir}/
+    {envpython} -m flake8 {envsitepackagesdir}/{[base]packagesubdir}/
 extras =
 deps =
     {[testenv]deps}
-    flake8>=6.1.0
+    flake8>=7.0.0
     flake8-pyproject>=1.2.3
     flake8-docstrings>=1.7.0
     pep8-naming>=0.13.3

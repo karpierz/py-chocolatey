@@ -4,10 +4,10 @@
     <!-- Required elements-->
     <id>py_choco.Test3</id>
     <version>1.0.3</version>
-    <description>py_choco.Test3 is a test package for py_chocolatey.</description>
+    <description>py_choco.Test3 is a test package for py-chocolatey.</description>
     <authors>Adam Karpierz</authors>
     <!-- Optional elements -->
-    <title>py_choco.Test3 - py_chocolatey's test package</title>
+    <title>py_choco.Test3 - py-chocolatey's test package</title>
   </metadata>
   <files><file src="tools/**" target="tools" /></files>
 </package>

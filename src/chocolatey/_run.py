@@ -1,10 +1,10 @@
-# Copyright (c) 2012-2023 Adam Karpierz
+# Copyright (c) 2012 Adam Karpierz
 # Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# https://opensource.org/license/zlib
 
 __all__ = ('run', 'split_kwargs')
 
-from typing import Any, Sequence, Tuple, List, Dict
+from typing import Any, Sequence, Tuple, Dict
 import subprocess
 import logging
 
@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 def run(*args, start_terminal_window=False, **kwargs):
     """
     Run the command described by args.
+
     Wait for command to complete, then return a subprocess.CompletedProcess instance.
     :param args: command line arguments which are provided to E-Sys.bat
     :param start_terminal_window: start E-Sys.bat in separate console window (for server mode)
@@ -24,7 +25,7 @@ def run(*args, start_terminal_window=False, **kwargs):
         args = ["cmd.exe", "/C", "start", *args]
     output = subprocess.run([str(arg) for arg in args], check=kwargs.pop("check", True), **kwargs)
     print_cmd = [("*****" if isinstance(arg, run.SafeString) else arg) for arg in args]
-    log.debug(f"cmd:{print_cmd}, returncode:{output.returncode}")#, stdout:{output.stdout}, stderr:{output.stderr}")
+    log.debug(f"cmd:{print_cmd}, returncode:{output.returncode}")
     return output
 
 
@@ -42,7 +43,7 @@ run.SafeString = type("SafeString", (str,), dict())
 
 
 def split_kwargs(kwargs: Dict[str, Any], forbidden_kwargs: Sequence[str]) \
-    -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        -> Tuple[Dict[str, Any], Dict[str, Any]]:
     allowed_kwargs  = {key: val for key, val in kwargs.items()
                        if key not in forbidden_kwargs}
     reserved_kwargs = {key: val for key, val in kwargs.items()

@@ -73,9 +73,9 @@ or on development mode:
 License
 =======
 
-  | Copyright (c) 2022-2023 Adam Karpierz
+  | Copyright (c) 2022-2024 Adam Karpierz
   | Licensed under the zlib/libpng License
-  | https://opensource.org/licenses/Zlib
+  | https://opensource.org/license/zlib
   | Please refer to the accompanying LICENSE file.
 
 Authors
@@ -85,7 +85,7 @@ Authors
 
 .. |package| replace:: py-chocolatey
 .. |package_bold| replace:: **py-chocolatey**
-.. |respository| replace:: https://github.com/karpierz/chocolatey.git
-.. _Development page: https://github.com/karpierz/chocolatey
+.. |respository| replace:: https://github.com/karpierz/py-chocolatey.git
+.. _Development page: https://github.com/karpierz/py-chocolatey
 .. _PyPI record: https://pypi.org/project/py-chocolatey/
 .. _Documentation: https://py-chocolatey.readthedocs.io/

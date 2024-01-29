@@ -1,6 +1,14 @@
 Changelog
 =========
 
+0.4.0 (2024-01-26)
+------------------
+- Setup update (now based on tox >= 4.0).
+- Add support for Python 3.12
+- Add support for PyPy 3.9 and 3.10
+- Copyright year update.
+- Cleanup.
+
 0.3.1 (2023-11-24)
 ------------------
 - Fix for info(). Now works for local_only=True.

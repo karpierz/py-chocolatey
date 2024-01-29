@@ -12,6 +12,9 @@ from chocolatey import Chocolatey
 choco = Chocolatey()
 
 sources = choco.sources()
-print(sources)
+print("SOURCES:") ; print(sources)
+
+pkg_info = choco.info(pkg_id="chocolatey")
+print("PACKAGE INFO:") ; print(pkg_info)
 
 input("Press a key...")

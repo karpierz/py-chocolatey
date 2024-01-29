@@ -1,6 +1,6 @@
-# Copyright (c) 2022-2023 Adam Karpierz
+# Copyright (c) 2022 Adam Karpierz
 # Licensed under the zlib/libpng License
-# https://opensource.org/licenses/Zlib
+# https://opensource.org/license/zlib
 
 __all__ = ('issubtype', 'issequence', 'remove_all', 'pushd')
 
