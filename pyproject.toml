@@ -8,7 +8,7 @@ requires = ['setuptools>=68.2.2', 'wheel>=0.42.0', 'packaging>=23.2.0', 'tox>=4.
 
 [project]
 name        = 'py-chocolatey'
-version     = '0.4.0'
+version     = '0.4.1'
 description = 'API for Chocolatey, the Package Manager for Windows.'
 urls.Homepage      = 'https://pypi.org/project/py-chocolatey/'
 urls.Documentation = 'https://py-chocolatey.readthedocs.io/'

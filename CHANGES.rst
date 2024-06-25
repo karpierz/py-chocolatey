@@ -1,6 +1,10 @@
 Changelog
 =========
 
+0.4.1 (2024-06-20)
+------------------
+- Upgrade chocolatey installer for chocolatey.2.3.0.nupkg
+
 0.4.0 (2024-01-26)
 ------------------
 - Setup update (now based on tox >= 4.0).

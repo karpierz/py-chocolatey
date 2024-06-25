@@ -604,8 +604,7 @@ class Chocolatey:
 
         # pre-parse
         out = re.sub(r"[\t ]*\|", "\n", out)
-        out = re.sub(r"\n[\t ]*Package url[\t ]*\n",
-                     "\n Package url: n/a\n", out)
+        out = re.sub(r"\n[\t ]*Package url[\t ]*\n", "\n Package url: n/a\n", out)
         # parse
         info_header_pattern = r"\s*Chocolatey[\t ]+v.+?([\t ]*\n)+" + \
                               rf"\s*{pkg_info.id}[\t ]+{pkg_info.version}([\t ]*\n)+"
@@ -672,7 +671,7 @@ class Chocolatey:
 
 @public
 class ChocolateyError(RuntimeError):
-    """Chocolatey Error"""
+    """Chocolatey error."""
 
     def __init__(self, *args, **kwargs):
         """Init"""
