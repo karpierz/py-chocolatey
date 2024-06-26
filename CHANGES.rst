@@ -4,6 +4,7 @@ Changelog
 0.4.1 (2024-06-20)
 ------------------
 - Upgrade chocolatey installer for chocolatey.2.3.0.nupkg
+- Setup (dependencies) update.
 
 0.4.0 (2024-01-26)
 ------------------

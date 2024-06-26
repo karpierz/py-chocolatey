@@ -607,7 +607,7 @@ class Chocolatey:
         out = re.sub(r"\n[\t ]*Package url[\t ]*\n", "\n Package url: n/a\n", out)
         # parse
         info_header_pattern = r"\s*Chocolatey[\t ]+v.+?([\t ]*\n)+" + \
-                              rf"\s*{pkg_info.id}[\t ]+{pkg_info.version}([\t ]*\n)+"
+                              rf"\s*{pkg_info.id}[\t ]+{pkg_info.version}([\t ]+\[\w+\])?([\t ]*\n)+"
         info_pattern        = r"(?P<info>(.*\n)*)"
         info_footer_pattern = r"\n(?P<pkgs_found>\d+)" + \
                               r"[\t ]+packages[\t ]+(found|installed)[\t ]*\.([\t ]*\n)*"
