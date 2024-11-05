@@ -1,10 +1,9 @@
-# Copyright (c) 2022 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/license/zlib
+# Copyright (c) 2012 Adam Karpierz
+# SPDX-License-Identifier: Zlib
 
-__all__ = ('issubtype', 'issequence', 'remove_all', 'pushd')
+__all__ = ('issubtype', 'issequence', 'isiterable', 'remove_all', 'pushd')
 
-from typing import Any, Sequence, Tuple, List, Dict
+from typing import Any, Sequence, Iterable, Tuple, List, Dict
 from collections import abc
 import contextlib
 
@@ -15,10 +14,15 @@ def issubtype(x: Any, t: Any) -> bool:
 
 def issequence(x: Any) -> bool:
     return (isinstance(x, (Sequence, abc.Sequence)) and
-            not isinstance(x, (bytes, type(u""))))
+            not isinstance(x, (bytes, str)))
 
 
-def remove_all(list: List, value: Any):
+def isiterable(x: Any) -> bool:
+    return (isinstance(x, (Iterable, abc.Iterable)) and
+            not isinstance(x, (bytes, str, String)))
+
+
+def remove_all(list: List, value: Any) -> None:
     list[:] = (item for item in list if item != value)
 
 

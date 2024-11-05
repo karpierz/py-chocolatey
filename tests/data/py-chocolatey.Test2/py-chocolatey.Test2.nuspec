@@ -2,12 +2,12 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <!-- Required elements-->
-    <id>py_choco.Test2</id>
+    <id>py-chocolatey.Test2</id>
     <version>1.0.2</version>
-    <description>py_choco.Test2 is a test package for py-chocolatey.</description>
+    <description>py-chocolatey.Test2 is a test package for py-chocolatey.</description>
     <authors>Adam Karpierz</authors>
     <!-- Optional elements -->
-    <title>py_choco.Test2 - py-chocolatey's test package</title>
+    <title>py-chocolatey.Test2 - py-chocolatey's test package</title>
   </metadata>
   <files><file src="tools/**" target="tools" /></files>
 </package>

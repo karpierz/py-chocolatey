@@ -1,6 +1,5 @@
 # Copyright (c) 2022 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/license/zlib
+# SPDX-License-Identifier: Zlib
 
 from typing import Any, Optional, Union, Sequence, Tuple, List, Dict
 import unittest
@@ -20,7 +19,7 @@ here = Path(__file__).resolve().parent
 data_dir = here/"data"
 
 
-class ChocolateyCmdCase(unittest.TestCase):
+class ChocolateyCmdTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):

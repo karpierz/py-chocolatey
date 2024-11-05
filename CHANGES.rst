@@ -1,6 +1,12 @@
 Changelog
 =========
 
+0.5.0 (2024-10-30)
+------------------
+- Add support for Python 3.13
+- Drop support for Python 3.8
+- Setup (dependencies) update.
+
 0.4.1 (2024-06-20)
 ------------------
 - Upgrade chocolatey installer for chocolatey.2.3.0.nupkg

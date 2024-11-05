@@ -1,6 +1,5 @@
 # Copyright (c) 2022 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/license/zlib
+# SPDX-License-Identifier: Zlib
 
 """Low-level Chocolatey API"""
 

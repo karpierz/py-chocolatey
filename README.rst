@@ -23,10 +23,10 @@ Installation
 
 Prerequisites:
 
-+ Python 3.8 or higher
++ Python 3.9 or higher
 
   * https://www.python.org/
-  * ATTENTION: currently works and tested only for Windows.
+  * ATTENTION: currently works and tested only under Windows.
 
 + pip and setuptools
 
@@ -73,7 +73,7 @@ or on development mode:
 License
 =======
 
-  | Copyright (c) 2022-2024 Adam Karpierz
+  | |copyright|
   | Licensed under the zlib/libpng License
   | https://opensource.org/license/zlib
   | Please refer to the accompanying LICENSE file.
@@ -85,6 +85,7 @@ Authors
 
 .. |package| replace:: py-chocolatey
 .. |package_bold| replace:: **py-chocolatey**
+.. |copyright| replace:: Copyright (c) 2022-2024 Adam Karpierz
 .. |respository| replace:: https://github.com/karpierz/py-chocolatey.git
 .. _Development page: https://github.com/karpierz/py-chocolatey
 .. _PyPI record: https://pypi.org/project/py-chocolatey/

@@ -1,6 +1,5 @@
 # Copyright (c) 2022 Adam Karpierz
-# Licensed under the zlib/libpng License
-# https://opensource.org/license/zlib
+# SPDX-License-Identifier: Zlib
 
 from typing import Any, Optional, Union, Sequence, Tuple, List, Dict
 import unittest
@@ -20,7 +19,7 @@ here = Path(__file__).resolve().parent
 data_dir = here/"data"
 
 
-class ChocolateyCase(unittest.TestCase):
+class ChocolateyTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -125,7 +124,7 @@ class ChocolateyCase(unittest.TestCase):
     def test_install(self):
         """Installs packages using configured sources."""
         print()
-        package = "py_choco.Test1"
+        package = "py-chocolatey.Test1"
         if package in self.choco.installed(): self.choco.uninstall(package)
         installed_before = self.choco.installed()
         print("INSTALLED BEFORE INSTALL:") ; pprint(installed_before)
@@ -139,7 +138,7 @@ class ChocolateyCase(unittest.TestCase):
     def test_upgrade(self):
         """Upgrades packages from various sources."""
         print()
-        package = "py_choco.Test2"
+        package = "py-chocolatey.Test2"
         if package in self.choco.installed(): self.choco.uninstall(package)
         installed_before = self.choco.installed()
         print("INSTALLED BEFORE UPGRADE:") ; pprint(installed_before)
@@ -153,7 +152,7 @@ class ChocolateyCase(unittest.TestCase):
     def test_uninstall(self):
         """Uninstalls packages."""
         print()
-        package = "py_choco.Test3"
+        package = "py-chocolatey.Test3"
         try:
             self.choco.install(package, source=data_dir)
             installed_before = self.choco.installed()
@@ -201,8 +200,8 @@ class ChocolateyCase(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_dir = Path(temp_dir)
             with pushd(temp_dir):
-                package4 = "py_choco.Test4"
-                package5 = "py_choco.Test5"
+                package4 = "py-chocolatey.Test4"
+                package5 = "py-chocolatey.Test5"
                 self.choco.pack(data_dir/package4/(package4 + ".nuspec"))
                 self.choco.pack(nuspec_file_path=data_dir/package5/(package5 + ".nuspec"))
                 self.assertTrue(Path(package4 + ".1.0.4.nupkg").exists())
