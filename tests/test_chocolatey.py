@@ -54,6 +54,7 @@ class ChocolateyTestCase(unittest.TestCase):
 
     def test_help(self):
         """Gets the help information for choco and choco commands."""
+        help_str = self.choco.help()
         self.assertTrue(1 == 1)
 
     def test_installed(self):
@@ -134,6 +135,8 @@ class ChocolateyTestCase(unittest.TestCase):
             print("INSTALLED AFTER INSTALL:") ; pprint(installed_after)
         finally:
             if package in self.choco.installed(): self.choco.uninstall(package)
+        with self.assertRaises(TypeError):
+            self.choco.install(source=data_dir)
 
     def test_upgrade(self):
         """Upgrades packages from various sources."""
@@ -148,6 +151,8 @@ class ChocolateyTestCase(unittest.TestCase):
             print("INSTALLED AFTER UPGRADE:") ; pprint(installed_after)
         finally:
             if package in self.choco.installed(): self.choco.uninstall(package)
+        with self.assertRaises(TypeError):
+            self.choco.upgrade(source=data_dir)
 
     def test_uninstall(self):
         """Uninstalls packages."""
@@ -162,6 +167,8 @@ class ChocolateyTestCase(unittest.TestCase):
             print("INSTALLED AFTER UNINSTALL:") ; pprint(installed_after)
         except:
             if package in self.choco.installed(): self.choco.uninstall(package)
+        with self.assertRaises(TypeError):
+            self.choco.uninstall()
 
     def test_pinned(self):
         """Retrieves a list of packages suppress for upgrades."""

@@ -1,6 +1,15 @@
 Changelog
 =========
 
+0.6.0 (2024-12-10)
+------------------
+- Upgrade chocolatey installer for chocolatey.2.4.1.nupkg
+- More unittests.
+- 100% code coverage.
+- 100% code linting.
+- Tox configuration is now in native (toml) format.
+- Setup (dependencies) update.
+
 0.5.0 (2024-10-30)
 ------------------
 - Add support for Python 3.13

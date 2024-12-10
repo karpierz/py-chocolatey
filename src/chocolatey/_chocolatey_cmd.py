@@ -1,6 +1,8 @@
 # Copyright (c) 2022 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
+from __future__ import annotations
+
 """Low-level Chocolatey API"""
 
 import sys

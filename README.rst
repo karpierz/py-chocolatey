@@ -26,7 +26,7 @@ Prerequisites:
 + Python 3.9 or higher
 
   * https://www.python.org/
-  * ATTENTION: currently works and tested only under Windows.
+  * ATTENTION: currently works and is only tested under Windows.
 
 + pip and setuptools
 

@@ -1,9 +1,11 @@
 # Copyright (c) 2022 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
+from __future__ import annotations
+
 """Chocolatey API"""
 
-from typing import Any, Optional, Union, List, Dict
+from typing import Any, Union, List, Dict
 from dataclasses import dataclass
 from collections import defaultdict
 from pathlib import Path
@@ -62,7 +64,7 @@ class PackageInfo(Package):
 @dataclass
 class Config:
     name: str
-    value: Optional[Union[str, bool]] = None
+    value: Union[str, bool] | None = None
     description: str = ""
 
     def __post_init__(self):
@@ -77,8 +79,8 @@ class Source:
     name: str
     value: str = ""
     disabled: bool = False
-    user: Optional[str] = None
-    password: Optional[str] = None
+    user: str | None = None
+    password: str | None = None
     priority: int = 0
     bypass_proxy: bool = False
     self_service: bool = False
@@ -223,7 +225,7 @@ class Chocolatey:
         return self._packages(out, klass=Package)
 
     def info(self, *, pkg_id: str, local_only=False, **kwargs) \
-          -> Optional[PackageInfo]:
+          -> PackageInfo | None:
         """Retrieves package information."""
         self._omit_args(kwargs, "limit_output", "verbose")
         try:
@@ -261,8 +263,8 @@ class Chocolatey:
     def install(self, *pkg_ids, yes=True, **kwargs) -> None:
         """Installs packages using configured sources."""
         if not pkg_ids:
-            raise TypeError("install() "
-                            "missing at least 1 required positional argument")
+            raise Chocolatey.TypeError("install() "
+                                       "missing at least 1 required positional argument")
         self._omit_args(kwargs, "yes")  # , "verbose")
         try:
             self.cmd.install(*pkg_ids, yes=yes, **kwargs)
@@ -273,8 +275,8 @@ class Chocolatey:
                 **kwargs) -> None:
         """Upgrades packages from various sources."""
         if not pkg_ids:
-            raise TypeError("upgrade() "
-                            "missing at least 1 required positional argument")
+            raise Chocolatey.TypeError("upgrade() "
+                                       "missing at least 1 required positional argument")
         self._omit_args(kwargs, "install_if_not_installed", "yes")  # , "verbose")
         try:
             self.cmd.upgrade(*pkg_ids,
@@ -286,8 +288,8 @@ class Chocolatey:
     def uninstall(self, *pkg_ids, yes=True, **kwargs) -> None:
         """Uninstalls packages."""
         if not pkg_ids:
-            raise TypeError("uninstall() "
-                            "missing at least 1 required positional argument")
+            raise Chocolatey.TypeError("uninstall() "
+                                       "missing at least 1 required positional argument")
         self._omit_args(kwargs, "yes")  # , "verbose")
         try:
             self.cmd.uninstall(*pkg_ids, yes=yes, **kwargs)
@@ -350,7 +352,7 @@ class Chocolatey:
             self._handle_exception(exc)
 
     def new_package(self, *, pkg_id: str,
-                    properties: Optional[Dict[str, str]] = None,
+                    properties: Dict[str, str] | None = None,
                     **kwargs) -> None:
         """Creates template files for creating a new Chocolatey package."""
         # <name> [<options/switches>] [<property=value> <propertyN=valueN>]
@@ -594,7 +596,7 @@ class Chocolatey:
 
     @classmethod
     def _info(cls, out: str,
-              pkg_info: Optional[PackageInfo]) -> Optional[PackageInfo]:
+              pkg_info: PackageInfo | None) -> PackageInfo | None:
         # if not found, returns None
         if not out.strip() or pkg_info is None:
             return None
@@ -606,7 +608,8 @@ class Chocolatey:
         out = re.sub(r"\n[\t ]*Package url[\t ]*\n", "\n Package url: n/a\n", out)
         # parse
         info_header_pattern = r"\s*Chocolatey[\t ]+v.+?([\t ]*\n)+" + \
-                              rf"\s*{pkg_info.id}[\t ]+{pkg_info.version}([\t ]+\[\w+\])?([\t ]*\n)+"
+                              rf"\s*{pkg_info.id}[\t ]+{pkg_info.version}([\t ]+\[\w+\])?" + \
+                              r"([\t ]*\n)+"
         info_pattern        = r"(?P<info>(.*\n)*)"
         info_footer_pattern = r"\n(?P<pkgs_found>\d+)" + \
                               r"[\t ]+packages[\t ]+(found|installed)[\t ]*\.([\t ]*\n)*"
@@ -665,16 +668,19 @@ class Chocolatey:
 
     def _handle_exception(self, exc, **kwargs):
         raise exc
-        # raise ChocolateyError(???)
+        # raise Chocolatey.RuntimeError(???)
 
+    class Error(Exception):
+        """Chocolatey error."""
 
-@public
-class ChocolateyError(RuntimeError):
-    """Chocolatey error."""
+    class TypeError(TypeError, Error):  # noqa: A001
+        """Chocolatey type error."""
 
-    def __init__(self, *args, **kwargs):
-        """Init"""
-        super().__init__(*args, **kwargs)
+    class ValueError(ValueError, Error):  # noqa: A001
+        """Chocolatey value error."""
+
+    class RuntimeError(RuntimeError, Error):  # noqa: A001
+        """Chocolatey runtime error."""
 
 
 def _str2bool(name: str, value: Any, *, with_check=True,
@@ -683,7 +689,7 @@ def _str2bool(name: str, value: Any, *, with_check=True,
         return value
     if not (value.lower() in literals):
         if not with_check: return value
-        raise _value_error(name, value)
+        raise Chocolatey.ValueError(f"Improper value ({value}) for '{name}' attribute!")
     return (value.lower() == literals[0])
 
 
@@ -700,7 +706,7 @@ def _str2int(name: str, value: Any, *, with_check=True):
     if not (value.isdigit()
             or value[1:].isdigit() and value[1:] in ("+", "-")):
         if not with_check: return value
-        raise _value_error(name, value)
+        raise Chocolatey.ValueError(f"Improper value ({value}) for '{name}' attribute!")
     return int(value)
 
 
@@ -710,7 +716,3 @@ def _str2none(name: str, value: Any):
 
 def _none2str(name: str, value: Any):
     return "" if value is None else value
-
-
-def _value_error(name: str, value: Any):
-    return ValueError(f"Improper value ({value}) for '{name}' attribute!")
