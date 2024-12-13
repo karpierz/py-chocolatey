@@ -7,7 +7,7 @@ requires = ['setuptools>=75.6.0', 'packaging>=24.2.0', 'tox>=4.23.2']
 
 [project]
 name        = 'py-chocolatey'
-version     = '0.6.0'
+version     = '0.6.1'
 description = 'API for Chocolatey, the Package Manager for Windows.'
 urls.Homepage      = 'https://pypi.org/project/py-chocolatey/'
 urls.Documentation = 'https://py-chocolatey.readthedocs.io/'
@@ -46,7 +46,7 @@ requires-python = '>=3.9.0,<4.0.0'
 dependencies = [
     # mandatory
     'setuptools>=75.6.0',
-    'pkg-about>=1.2.5',
+    'pkg-about>=1.2.6',
     # others
     'nocasedict>=2.0.4',
     'atpublic>=5.0.0',
@@ -165,7 +165,7 @@ skip_missing_interpreters = true
 requires = [
     {replace='ref',of=['tool','tox','_','base','deps'],extend=true},
     'virtualenv>=20.28.0',
-    'tox-backtick>=0.5.4',
+    'tox-backtick>=0.5.5',
     'tox-tags>=0.2.0',
 ]
 [tool.tox.labels]
@@ -246,7 +246,7 @@ deps = [
 depends = [{replace='ref',of=['tool','tox','labels','py'],extend=true}, 'docs']
 base_python = {replace='ref',of=['tool','tox','_','base','base_python']}
 commands = [
-    ['{env_python}','-W','ignore','-c','from setuptools import setup ; setup()','--quiet','sdist','--formats=zip'],
+    ['{env_python}','-W','ignore','-c','from setuptools import setup ; setup()','--quiet','sdist','--formats=gztar'],
     ['{env_python}','-W','ignore','-c','from setuptools import setup ; setup()','--quiet','bdist_wheel'],
     # check out for PyPi
     ['{env_python}','-m','twine','check','dist/*'],

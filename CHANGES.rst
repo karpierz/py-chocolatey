@@ -1,12 +1,17 @@
 Changelog
 =========
 
+0.6.1 (2024-12-13)
+------------------
+- Source distribution (\*.tar.gz now) is compliant with PEP-0625.
+- Setup (dependencies) update.
+
 0.6.0 (2024-12-10)
 ------------------
 - Upgrade chocolatey installer for chocolatey.2.4.1.nupkg
 - More unittests.
-- 100% code coverage.
 - 100% code linting.
+- 100% code coverage.
 - Tox configuration is now in native (toml) format.
 - Setup (dependencies) update.
 
