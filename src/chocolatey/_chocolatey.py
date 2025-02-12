@@ -139,6 +139,18 @@ class Chocolatey:
 
     ### High-level API ###
 
+    @classmethod
+    def setup(cls):
+        """Setup chocolatey software."""
+        setup_dir = Path(__file__).resolve().parent/"choco-setup"
+        choco_pkg = next(setup_dir.glob("chocolatey.*.nupkg"))
+        # Install chocolatey
+        with tempfile.TemporaryDirectory() as temp_dir:
+            zip_file = Path(temp_dir)/"chocolatey.zip"
+            shutil.copy2(str(choco_pkg), str(zip_file))
+            run(shutil.which("powershell.exe"), "-ExecutionPolicy", "Bypass",
+                setup_dir/"install.ps1", "-ChocolateyDownloadUrl", zip_file)
+
     @property
     def version(self) -> str:
         """Gets the Chocolatey version."""
@@ -206,8 +218,8 @@ class Chocolatey:
             if not pkgs: del packages[pkg_id]
         return packages
 
-    def search(self, filter=False, *, all_versions=True, **kwargs) \
-            -> Dict[str, List[Package]]:  # noqa: A002
+    def search(self, filter=False, *, all_versions=False,  # noqa: A002
+               exact=False, **kwargs) -> Dict[str, List[Package]]:
         """Searches remote packages."""
         self._omit_args(kwargs, "limit_output", "page", "page_size",
                         "verbose", "detail", "detailed", "idonly", "id_only")
@@ -216,16 +228,17 @@ class Chocolatey:
             try:
                 arg = [filter] if filter is not False else []
                 output = self.cmd.search(*arg, limit_output=True, page=page,
-                                         all_versions=all_versions,
+                                         all_versions=all_versions, exact=exact,
                                          **self._capture_output, **kwargs)
             except run.CalledProcessError as exc:
                 self._handle_exception(exc)
             if not output.stdout: break
             out += output.stdout ; page += 1
-        return self._packages(out, klass=Package)
+            if exact: break
+        return self._packages(out, allow_multiple=all_versions)
 
     def info(self, *, pkg_id: str, local_only=False, **kwargs) \
-          -> PackageInfo | None:
+            -> PackageInfo | None:
         """Retrieves package information."""
         self._omit_args(kwargs, "limit_output", "verbose")
         try:
@@ -236,10 +249,10 @@ class Chocolatey:
             self._handle_exception(exc)
         # if not found, returns None
         if not output.stdout.strip():
-            return None
+            return None  # pragma: no cover
         packages = self._packages(output.stdout, klass=PackageInfo)
         if not packages:
-            return None
+            return None  # pragma: no cover
         pkg_info = list(packages.values())[0]
         try:
             output = self.cmd.info(pkg_id,
@@ -334,20 +347,12 @@ class Chocolatey:
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
-    def push(self, nupkg_file_path=False, yes=True, **kwargs) -> None:
+    def push(self, nupkg_file_path=False, yes=True, **kwargs) -> None:  # pragma: no cover
         """Pushes a compiled nupkg to a source."""
         self._omit_args(kwargs)  # , "verbose")
         try:
             arg = [nupkg_file_path] if nupkg_file_path is not False else []
             self.cmd.push(*arg, yes=yes, **kwargs)
-        except run.CalledProcessError as exc:
-            self._handle_exception(exc)
-
-    def unpackself(self, **kwargs) -> None:
-        """Re-installs Chocolatey base files."""
-        self._omit_args(kwargs)  # , "verbose")
-        try:
-            self.cmd.unpackself(**kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -392,10 +397,12 @@ class Chocolatey:
         """Set config value."""
         self._omit_args(kwargs)  # , "verbose")
         try:
-            self.cmd.config("set", name=name, value=(_none2str(name, value)
-                                                     if value is None else
-                                                     _bool2str(name, value)),
-                            **self._capture_output, **kwargs)
+            if value is None or value == "":
+                self.cmd.config("unset", name=name,
+                                **self._capture_output, **kwargs)
+            else:
+                self.cmd.config("set", name=name, value=_bool2str(name, value),
+                                **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
@@ -468,12 +475,12 @@ class Chocolatey:
         """Get feature value."""
         self._omit_args(kwargs)  # , "verbose")
         try:
-            output = self.cmd.feature("get", name=name,
+            output = self.cmd.feature("get", name=name, limit_output=True,
                                       **self._capture_output, **kwargs)
+            value = output.stdout.strip()
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return _str2bool("stdout", output.stdout.strip(),
-                         literals=("enabled", "disabled"))
+        return _str2bool("stdout", value, literals=("enabled", "disabled"))
 
     def feature_enable(self, *, name: str, **kwargs) -> None:
         """Enable feature."""
@@ -539,7 +546,7 @@ class Chocolatey:
                                        **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._config(output.stdout, klass=Template)[0]
+        return list(self._config(output.stdout, klass=Template).values())[0]
 
     def cache_list(self, **kwargs) -> None:
         """Displays information about the local HTTP caches used to store queries."""
@@ -557,18 +564,6 @@ class Chocolatey:
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
-    @classmethod
-    def setup(cls):
-        """Setup chocolatey software."""
-        setup_dir = Path(__file__).resolve().parent/"choco-setup"
-        choco_pkg = next(setup_dir.glob("chocolatey.*.nupkg"))
-        # Install chocolatey
-        with tempfile.TemporaryDirectory() as temp_dir:
-            zip_file = Path(temp_dir)/"chocolatey.zip"
-            shutil.copy2(str(choco_pkg), str(zip_file))
-            run(shutil.which("powershell.exe"), "-ExecutionPolicy", "Bypass",
-                setup_dir/"install.ps1", "-ChocolateyDownloadUrl", zip_file)
-
     # ----- internals ----- #
 
     # OUTPUT_QUIET ERROR_QUIET
@@ -580,7 +575,8 @@ class Chocolatey:
 
     _capture_output = dict(text=True, capture_output=True)
 
-    def _packages(self, out: str, *, klass=Package) -> Dict[str, Any]:
+    def _packages(self, out: str, *, klass=Package,
+                  allow_multiple=None) -> Dict[str, Any]:
         lines = [line.strip() for line in out.strip().splitlines()]
         lines.sort(key=str.casefold)
         packages = defaultdict(list)
@@ -588,10 +584,10 @@ class Chocolatey:
             # print("LINE:", line)
             package = klass(*line.split("|"))
             # print("PKG: ", package)
-            if not self._allow_multiple:
-                packages[package.id] = package
-            else:
+            if self._allow_multiple if allow_multiple is None else allow_multiple:
                 packages[package.id].append(package)
+            else:
+                packages[package.id] = package
         return dict(packages)
 
     @classmethod
@@ -599,7 +595,7 @@ class Chocolatey:
               pkg_info: PackageInfo | None) -> PackageInfo | None:
         # if not found, returns None
         if not out.strip() or pkg_info is None:
-            return None
+            return None  # pragma: no cover
 
         out = out.replace("\r\n", "\n")
 
@@ -667,7 +663,7 @@ class Chocolatey:
             kwargs.pop(omit, None)
 
     def _handle_exception(self, exc, **kwargs):
-        raise exc
+        raise exc  # pragma: no cover
         # raise Chocolatey.RuntimeError(???)
 
     class Error(Exception):
@@ -683,6 +679,13 @@ class Chocolatey:
         """Chocolatey runtime error."""
 
 
+def _bool2str(name: str, value: Any, *,
+              literals=("true", "false")):
+    if not isinstance(value, bool):
+        return value
+    return literals[0 if value else 1]
+
+
 def _str2bool(name: str, value: Any, *, with_check=True,
               literals=("true", "false")):
     if not isinstance(value, str):
@@ -691,13 +694,6 @@ def _str2bool(name: str, value: Any, *, with_check=True,
         if not with_check: return value
         raise Chocolatey.ValueError(f"Improper value ({value}) for '{name}' attribute!")
     return (value.lower() == literals[0])
-
-
-def _bool2str(name: str, value: Any, *,
-              literals=("true", "false")):
-    if not isinstance(value, bool):
-        return value
-    return literals[0 if value else 1]
 
 
 def _str2int(name: str, value: Any, *, with_check=True):
@@ -712,7 +708,3 @@ def _str2int(name: str, value: Any, *, with_check=True):
 
 def _str2none(name: str, value: Any):
     return None if isinstance(value, str) and not value else value
-
-
-def _none2str(name: str, value: Any):
-    return "" if value is None else value

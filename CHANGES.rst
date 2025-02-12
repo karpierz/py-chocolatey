@@ -1,6 +1,21 @@
 Changelog
 =========
 
+0.7.0 (2025-02-01)
+------------------
+- Bugfix for feature_get().
+- Bugfix for config_set().
+- Bugfix for search().
+- Bugfix for template_info().
+- Copyright year update.
+- | Remove 'unpackself' command - because deprecate, see:
+  | https://github.com/chocolatey/choco/issues/3426
+- Upgrade chocolatey installer for chocolatey.2.4.2.nupkg
+- More unittests.
+- 100% code linting.
+- 100% code coverage.
+- Setup (dependencies) update.
+
 0.6.1 (2024-12-13)
 ------------------
 - Source distribution (\*.tar.gz now) is compliant with PEP-0625.
@@ -10,8 +25,6 @@ Changelog
 ------------------
 - Upgrade chocolatey installer for chocolatey.2.4.1.nupkg
 - More unittests.
-- 100% code linting.
-- 100% code coverage.
 - Tox configuration is now in native (toml) format.
 - Setup (dependencies) update.
 

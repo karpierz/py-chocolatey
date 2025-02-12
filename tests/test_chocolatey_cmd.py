@@ -10,7 +10,6 @@ import threading
 
 from rich.pretty import pprint
 pprint = partial(pprint, max_length=500)
-from ._util import pushd
 
 import chocolatey
 from chocolatey import ChocolateyCmd
@@ -97,6 +96,3 @@ class ChocolateyCmdTestCase(unittest.TestCase):
     def test_template(self):
         self.assertIs(self.choco_cmd.__class__.template,
                       self.choco_cmd.__class__.templates)
-
-    def test_unpackself(self):
-        self.assertTrue(1 == 1)

@@ -120,16 +120,15 @@ Options and Switches
        ''.
 
      --proxy-password=VALUE
-     Proxy Password - Explicit proxy password (optional) to be used with 
-       username. Requires explicit proxy (`--proxy` or config setting) and user 
-       name.  Overrides the default proxy password (encrypted in settings if 
-       set).
+     Proxy Password - Explicit proxy password (optional) to be used with user 
+       name. Encrypted. Requires explicit proxy (`--proxy` or config setting) 
+       and user name (`--proxy-user` or config setting).  Overrides the default 
+       proxy password.
 
      --proxy-bypass-list=VALUE
      ProxyBypassList - Comma separated list of regex locations to bypass on 
        proxy. Requires explicit proxy (`--proxy` or config setting). Overrides 
-       the default proxy bypass list of 'aptiv.com,.*.aptiv.com,delphiauto.net-
-       ,.*.delphiauto.net'.
+       the default proxy bypass list of ''.
 
      --proxy-bypass-on-local
      Proxy Bypass On Local - Bypass proxy for local connections. Requires 
@@ -142,8 +141,7 @@ Options and Switches
      --skipcompatibilitychecks, --skip-compatibility-checks
      SkipCompatibilityChecks - Prevent warnings being shown before and after 
        command execution when a runtime compatibility problem is found between 
-       the version of Chocolatey and the Chocolatey Licensed Extension. 
-       Available in 1.1.0+
+       the version of Chocolatey and the Chocolatey Licensed Extension.
 
      --ignore-http-cache
      IgnoreHttpCache - Ignore any HTTP caches that have previously been 
@@ -184,3 +182,8 @@ Options and Switches
        this makes queries similar to the way they were done in earlier versions 
        of Chocolatey. Overrides the default feature 
        'usePackageRepositoryOptimizations' set to 'True'.
+
+     --include-configured-sources
+     Include Configured Sources - When using the '--source' option, this 
+       appends the sources that have been saved into the chocolatey.config file 
+       by 'source' command.  Available in 2.3.0+

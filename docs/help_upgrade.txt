@@ -44,6 +44,11 @@ Exit codes that normally result from running this command.
 Normal:
  - 0: operation was successful, no issues detected
  - -1 or 1: an error has occurred
+ - 2: nothing to do, no packages outdated (enhanced)
+
+NOTE: Starting in v2.3.0, if you have the feature 'useEnhancedExitCodes'
+ turned on, then choco will provide enhanced exit codes that allow
+ better integration and scripting.
 
 Package Exit Codes:
  - 1641: success, reboot initiated
@@ -153,16 +158,15 @@ NOTE: Options and switches apply to all items passed, so if you are
        ''.
 
      --proxy-password=VALUE
-     Proxy Password - Explicit proxy password (optional) to be used with 
-       username. Requires explicit proxy (`--proxy` or config setting) and user 
-       name.  Overrides the default proxy password (encrypted in settings if 
-       set).
+     Proxy Password - Explicit proxy password (optional) to be used with user 
+       name. Encrypted. Requires explicit proxy (`--proxy` or config setting) 
+       and user name (`--proxy-user` or config setting).  Overrides the default 
+       proxy password.
 
      --proxy-bypass-list=VALUE
      ProxyBypassList - Comma separated list of regex locations to bypass on 
        proxy. Requires explicit proxy (`--proxy` or config setting). Overrides 
-       the default proxy bypass list of 'aptiv.com,.*.aptiv.com,delphiauto.net-
-       ,.*.delphiauto.net'.
+       the default proxy bypass list of ''.
 
      --proxy-bypass-on-local
      Proxy Bypass On Local - Bypass proxy for local connections. Requires 
@@ -175,8 +179,7 @@ NOTE: Options and switches apply to all items passed, so if you are
      --skipcompatibilitychecks, --skip-compatibility-checks
      SkipCompatibilityChecks - Prevent warnings being shown before and after 
        command execution when a runtime compatibility problem is found between 
-       the version of Chocolatey and the Chocolatey Licensed Extension. 
-       Available in 1.1.0+
+       the version of Chocolatey and the Chocolatey Licensed Extension.
 
      --ignore-http-cache
      IgnoreHttpCache - Ignore any HTTP caches that have previously been 
@@ -376,3 +379,12 @@ NOTE: Options and switches apply to all items passed, so if you are
 
      --skiphooks, --skip-hooks
      Skip hooks - Do not run hook scripts. Available in 1.2.0+
+
+     --ignore-pinned
+     Ignore Pinned - Ignores any pins and upgrades the package(s) anyway. 
+       Available in 2.3.0+
+
+     --include-configured-sources
+     Include Configured Sources - When using the '--source' option, this 
+       appends the sources that have been saved into the chocolatey.config file 
+       by 'source' command.  Available in 2.3.0+

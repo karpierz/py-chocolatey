@@ -23,6 +23,7 @@ Commands
  * pack - packages nuspec, scripts, and other Chocolatey package resources into a nupkg file
  * pin - suppress upgrades for a package
  * push - pushes a compiled nupkg to a source
+ * rule - view or list implemented package rules (v2.3.0+)
  * search - searches remote packages
  * setapikey - retrieves, saves or deletes an API key for a particular source (alias for apikey)
  * source - view and configure default sources
@@ -30,7 +31,7 @@ Commands
  * template - get information about installed templates
  * templates - get information about installed templates (alias for template)
  * uninstall - uninstalls a package
- * unpackself - re-installs Chocolatey base files
+ * unpackself - [DEPRECATED] will be removed in v3.0.0 - re-installs Chocolatey base files
  * upgrade - upgrades packages from various sources
 
 
@@ -263,16 +264,15 @@ Default Options and Switches
        ''.
 
      --proxy-password=VALUE
-     Proxy Password - Explicit proxy password (optional) to be used with 
-       username. Requires explicit proxy (`--proxy` or config setting) and user 
-       name.  Overrides the default proxy password (encrypted in settings if 
-       set).
+     Proxy Password - Explicit proxy password (optional) to be used with user 
+       name. Encrypted. Requires explicit proxy (`--proxy` or config setting) 
+       and user name (`--proxy-user` or config setting).  Overrides the default 
+       proxy password.
 
      --proxy-bypass-list=VALUE
      ProxyBypassList - Comma separated list of regex locations to bypass on 
        proxy. Requires explicit proxy (`--proxy` or config setting). Overrides 
-       the default proxy bypass list of 'aptiv.com,.*.aptiv.com,delphiauto.net-
-       ,.*.delphiauto.net'.
+       the default proxy bypass list of ''.
 
      --proxy-bypass-on-local
      Proxy Bypass On Local - Bypass proxy for local connections. Requires 
@@ -285,8 +285,7 @@ Default Options and Switches
      --skipcompatibilitychecks, --skip-compatibility-checks
      SkipCompatibilityChecks - Prevent warnings being shown before and after 
        command execution when a runtime compatibility problem is found between 
-       the version of Chocolatey and the Chocolatey Licensed Extension. 
-       Available in 1.1.0+
+       the version of Chocolatey and the Chocolatey Licensed Extension.
 
      --ignore-http-cache
      IgnoreHttpCache - Ignore any HTTP caches that have previously been 

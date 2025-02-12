@@ -176,16 +176,15 @@ NOTE: Options and switches apply to all items passed, so if you are
        ''.
 
      --proxy-password=VALUE
-     Proxy Password - Explicit proxy password (optional) to be used with 
-       username. Requires explicit proxy (`--proxy` or config setting) and user 
-       name.  Overrides the default proxy password (encrypted in settings if 
-       set).
+     Proxy Password - Explicit proxy password (optional) to be used with user 
+       name. Encrypted. Requires explicit proxy (`--proxy` or config setting) 
+       and user name (`--proxy-user` or config setting).  Overrides the default 
+       proxy password.
 
      --proxy-bypass-list=VALUE
      ProxyBypassList - Comma separated list of regex locations to bypass on 
        proxy. Requires explicit proxy (`--proxy` or config setting). Overrides 
-       the default proxy bypass list of 'aptiv.com,.*.aptiv.com,delphiauto.net-
-       ,.*.delphiauto.net'.
+       the default proxy bypass list of ''.
 
      --proxy-bypass-on-local
      Proxy Bypass On Local - Bypass proxy for local connections. Requires 
@@ -198,8 +197,7 @@ NOTE: Options and switches apply to all items passed, so if you are
      --skipcompatibilitychecks, --skip-compatibility-checks
      SkipCompatibilityChecks - Prevent warnings being shown before and after 
        command execution when a runtime compatibility problem is found between 
-       the version of Chocolatey and the Chocolatey Licensed Extension. 
-       Available in 1.1.0+
+       the version of Chocolatey and the Chocolatey Licensed Extension.
 
      --ignore-http-cache
      IgnoreHttpCache - Ignore any HTTP caches that have previously been 

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <!-- Required elements-->
+    <id>[[PackageName]]</id>
+    <version>[[PackageVersion]]</version>
+    <description>[[PackageName]] is a py-chocolatey's test template
+      with [[Country]] passed to it.</description>
+    <authors>Adam Karpierz</authors>
+    <!-- Optional elements -->
+    <title>[[PackageName]] - py-chocolatey's test template.</title>
+    <owners>Adam Karpierz</owners>
+    <summary>py-chocolatey's test template.</summary>
+    <tags>template</tags>
+    <dependencies>
+      <dependency id="ak.chocolatey.extension" version="1.0.0" />
+    </dependencies>
+  </metadata>
+  <files><file src="tools/**" target="tools" /></files>
+</package>

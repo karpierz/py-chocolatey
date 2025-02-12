@@ -11,6 +11,7 @@ from pathlib   import Path
 from functools import partialmethod
 
 from public import public
+import platformdirs
 
 from . import _run
 from ._run import run
@@ -20,7 +21,7 @@ from ._run import run
 class ChocolateyCmd:
     """Chocolatey commands"""
 
-    _CHOCOLATEY_EXE = Path("C:/ProgramData/chocolatey/bin/choco.exe")
+    _CHOCOLATEY_EXE = platformdirs.site_data_path()/"chocolatey/bin/choco.exe"
     _LAUNCHER_EXE   = Path(__file__).resolve().parent/"exe-bin"/"launcher.exe"
 
     def __new__(cls, source: str = None):
@@ -112,7 +113,7 @@ class ChocolateyCmd:
         cmd = self._cmd if args[0] in ("list",) else self._cmd_elevated
         return cmd("pin", *args, **kwargs)
 
-    def push(self, *args, **kwargs) -> run.CompletedProcess:
+    def push(self, *args, **kwargs) -> run.CompletedProcess:  # pragma: no cover
         """Pushes a compiled nupkg to a source."""
         return self._cmd("push", *args, source=self._get_source(kwargs), **kwargs)
 
@@ -128,10 +129,6 @@ class ChocolateyCmd:
         return self._cmd("template", *args, **kwargs)
 
     templates = template  # alias for template
-
-    def unpackself(self, *args, **kwargs) -> run.CompletedProcess:
-        """Re-installs Chocolatey base files."""
-        return self._cmd("unpackself", *args, source=self._get_source(kwargs), **kwargs)
 
     # ----- internals ----- #
 

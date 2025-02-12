@@ -13,7 +13,6 @@ print("choco version:", choco.version)
 (here/"help.txt").open("w", newline="").write(choco.help(command="help"))
 for command in ("apikey", "cache", "config", "export", "feature", "info",
                 "install", "list", "new", "outdated", "pack", "pin", "push",
-                "search", "source", "template", "uninstall", "unpackself",
-                "upgrade"):
+                "rule", "search", "source", "template", "uninstall", "upgrade"):
     fpath = here/f"help_{command}.txt"
     fpath.open("w", newline="").write(choco.help(command=command))

@@ -20,7 +20,7 @@ def run(*args, start_terminal_window=False, **kwargs):
     :param kwargs: arguments tu control subprocess execution
     :return: subprocess.CompletedProcess instance
     """
-    if start_terminal_window:
+    if start_terminal_window:  # pragma: no cover
         args = ["cmd.exe", "/C", "start", *args]
     output = subprocess.run([str(arg) for arg in args], check=kwargs.pop("check", True), **kwargs)
     print_cmd = [("*****" if isinstance(arg, run.SafeString) else arg) for arg in args]

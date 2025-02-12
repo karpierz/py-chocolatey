@@ -1,0 +1,8 @@
+Url:       https://community.chocolatey.org/api/v2/package/chocolatey
+Url redir: https://packages.chocolatey.org/chocolatey.2.4.2.nupkg
+Completed: 2025-02-03 15:57:17
+File name: chocolatey.2.4.2.nupkg
+File date: Thu, 30 Jan 2025 08:41:02 GMT
+File size: 5409812
+SHA256sum: 6CC78E2BA29EC20B7956567DCD3B89309CFEF73EFB3F6F07FABC58A0A731BB01
+SHA1sum:   557A142FC9FEC83F658BF320668D50D91DB83369

@@ -85,7 +85,7 @@ Authors
 
 .. |package| replace:: py-chocolatey
 .. |package_bold| replace:: **py-chocolatey**
-.. |copyright| replace:: Copyright (c) 2022-2024 Adam Karpierz
+.. |copyright| replace:: Copyright (c) 2022-2025 Adam Karpierz
 .. |respository| replace:: https://github.com/karpierz/py-chocolatey.git
 .. _Development page: https://github.com/karpierz/py-chocolatey
 .. _PyPI record: https://pypi.org/project/py-chocolatey/
