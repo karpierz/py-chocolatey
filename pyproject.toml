@@ -166,7 +166,7 @@ count = true
 #
 
 [tool.tox]  # py-chocolatey
-env_list = [{replace='ref',of=['tool','tox','labels','py'],extend=true}, 'lint', 'docs']
+env_list = [{replace='ref',of=['tool','tox','labels','py'],extend=true}, 'coverage', 'lint', 'docs']
 min_version = '4.24.1'
 skip_missing_interpreters = true
 requires = [
