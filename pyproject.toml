@@ -66,7 +66,7 @@ optional-dependencies.'doc' = [
     'nbsphinx>=0.9.7',
 ]
 optional-dependencies.'test' = [
-    'deepdiff>=8.2.0',
+    'deepdiff>=8.3.0',
     'rich>=13.9.4',
 ]
 
@@ -171,7 +171,7 @@ min_version = '4.24.2'
 skip_missing_interpreters = true
 requires = [
     {replace='ref',of=['tool','tox','_','base','deps'],extend=true},
-    'virtualenv>=20.29.2',
+    'virtualenv>=20.29.3',
     'tox-backtick>=0.5.8',
 ]
 [tool.tox.labels]
