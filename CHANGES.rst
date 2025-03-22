@@ -1,6 +1,13 @@
 Changelog
 =========
 
+0.7.1 (2025-03-20)
+------------------
+- Upgrade chocolatey installer for chocolatey.2.4.3.nupkg
+- Add support for PyPy 3.11
+- Drop support for PyPy 3.9
+- Setup (dependencies) update.
+
 0.7.0 (2025-02-01)
 ------------------
 - Bugfix for feature_get().

@@ -3,11 +3,11 @@
 
 [build-system]
 build-backend = 'setuptools.build_meta'
-requires = ['setuptools>=76.0.0', 'packaging>=24.2.0', 'tox>=4.24.2']
+requires = ['setuptools>=77.0.3', 'packaging>=24.2.0', 'tox>=4.24.2']
 
 [project]
 name        = 'py-chocolatey'
-version     = '0.7.0'
+version     = '0.7.1'
 description = 'API for Chocolatey, the Package Manager for Windows.'
 urls.Homepage      = 'https://pypi.org/project/py-chocolatey/'
 urls.Documentation = 'https://py-chocolatey.readthedocs.io/'
@@ -45,13 +45,13 @@ classifiers = [
 requires-python = '>=3.9.0,<4.0.0'
 dependencies = [
     # mandatory
-    'setuptools>=76.0.0',
-    'pkg-about>=1.2.9',
+    'setuptools>=77.0.3',
+    'pkg-about>=1.2.11',
     # others
     'nocasedict>=2.0.4',
     'atpublic>=5.1.0',
     'regex>=2024.11.6',
-    'platformdirs>=4.3.6',
+    'platformdirs>=4.3.7',
 ]
 dynamic = ['readme']
 optional-dependencies.'doc' = [
@@ -66,7 +66,7 @@ optional-dependencies.'doc' = [
     'nbsphinx>=0.9.7',
 ]
 optional-dependencies.'test' = [
-    'deepdiff>=8.3.0',
+    'deepdiff>=8.4.2',
     'rich>=13.9.4',
 ]
 
@@ -172,10 +172,10 @@ skip_missing_interpreters = true
 requires = [
     {replace='ref',of=['tool','tox','_','base','deps'],extend=true},
     'virtualenv>=20.29.3',
-    'tox-backtick>=0.5.8',
+    'tox-backtick>=0.5.10',
 ]
 [tool.tox.labels]
-py = ['py39','py310','py311','py312','py313', 'pypy39','pypy310']
+py = ['py39','py310','py311','py312','py313', 'pypy310','pypy311']
 prepare  = ['prepare']
 coverage = ['coverage']
 lint = ['lint']
@@ -187,7 +187,7 @@ deploy = [{replace='ref',of=['tool','tox','labels','build'],extend=true}, 'publi
 base_python = ['python3.12']
 deps = [
     'pip>=25.0.1',
-    'setuptools>=76.0.0',
+    'setuptools>=77.0.3',
 ]
 package_subdir = 'chocolatey'
 
@@ -229,7 +229,7 @@ commands = [
 ]
 deps = [
     {replace='ref',of=['tool','tox','env_run_base','deps'],extend=true},
-    'coverage>=7.6.12',
+    'coverage>=7.7.0',
     'covdefaults>=2.3.0',
     'diff-cover>=9.2.0',
 ]
