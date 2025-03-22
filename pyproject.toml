@@ -229,7 +229,7 @@ commands = [
 ]
 deps = [
     {replace='ref',of=['tool','tox','env_run_base','deps'],extend=true},
-    'coverage>=7.7.0',
+    'coverage>=7.7.1',
     'covdefaults>=2.3.0',
     'diff-cover>=9.2.0',
 ]
