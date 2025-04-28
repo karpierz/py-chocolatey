@@ -23,7 +23,7 @@ Installation
 
 Prerequisites:
 
-+ Python 3.9 or higher
++ Python 3.10 or higher
 
   * https://www.python.org/
   * ATTENTION: currently works and is only tested under Windows.
