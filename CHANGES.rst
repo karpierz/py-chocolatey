@@ -1,6 +1,22 @@
 Changelog
 =========
 
+0.9.0 (2025-09-19)
+------------------
+- Making and mark the package typed.
+- Add license() command. Available since Chocolatey v2.5.0
+- Add support() command. Available since Chocolatey v2.5.0
+- Fix an error in export(): was include_version -> include_version_numbers.
+- Remove all_versions option from installed(). Dropped in Chocolatey v2.0.0
+- | The ignore_pinned option is now supported in installed(). Available since
+  | Chocolatey v2.5.0
+- Setup (dependencies) update and fixes.
+
+0.8.3 (2025-09-01)
+------------------
+- Upgrade chocolatey installer for chocolatey.2.5.1.nupkg
+- Setup (dependencies) update.
+
 0.8.2 (2025-05-15)
 ------------------
 - The distribution is now created using 'build' instead of 'setuptools'.

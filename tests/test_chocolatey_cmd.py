@@ -1,12 +1,13 @@
 # Copyright (c) 2022 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
-from typing import Any, Optional, Union, Sequence, Tuple, List, Dict
 import unittest
+import os
+import shutil
+import tempfile
+import threading
 from functools import partial
 from pathlib import Path
-import os, shutil, tempfile
-import threading
 
 from rich.pretty import pprint
 pprint = partial(pprint, max_length=500)
@@ -37,6 +38,12 @@ class ChocolateyCmdTestCase(unittest.TestCase):
         self.assertTrue(1 == 1)
 
     def test_help(self):
+        self.assertTrue(1 == 1)
+
+    def test_license(self):
+        self.assertTrue(1 == 1)
+
+    def test_support(self):
         self.assertTrue(1 == 1)
 
     def test_apikey(self):

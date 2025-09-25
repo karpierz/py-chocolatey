@@ -1,16 +1,17 @@
 # Copyright (c) 2022 Adam Karpierz
 # SPDX-License-Identifier: Zlib
 
-from typing import Any, Optional, Union, Sequence, Tuple, List, Dict
 import unittest
+import os
+import shutil
+import tempfile
+import threading
 from functools import partial
 from pathlib import Path
-import os, shutil, tempfile
-import threading
 
 from rich.pretty import pprint
 pprint = partial(pprint, max_length=500)
-from ._util import pushd
+from utlx import Path as EPath
 
 import chocolatey
 from chocolatey import Chocolatey
@@ -61,10 +62,20 @@ class ChocolateyTestCase(unittest.TestCase):
         help_str = self.choco.help(command="search")
         self.assertIsInstance(help_str, str)
 
+    def test_license(self):
+        """Gets the information about the current Chocolatey CLI license [v2.5.0+]."""
+        license_str = self.choco.license()
+        self.assertIsInstance(license_str, str)
+
+    def test_support(self):
+        """Provides support information [v2.5.0+]."""
+        support_str = self.choco.support()
+        self.assertIsInstance(support_str, str)
+
     def test_installed(self):
         """Retrieves a list of locally installed packages."""
         installed = self.choco.installed()
-        self.assertIsInstance(installed, Dict)
+        self.assertIsInstance(installed, dict)
         for pkg_id, package in installed.items():
             self.assertIsInstance(pkg_id, str)
             self.assertIsInstance(package, chocolatey.Package)
@@ -74,7 +85,7 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_outdated(self):
         """Retrieves information about packages that are outdated."""
         outdated = self.choco.outdated()
-        self.assertIsInstance(outdated, Dict)
+        self.assertIsInstance(outdated, dict)
         for pkg_id, package in outdated.items():
             self.assertIsInstance(pkg_id, str)
             self.assertIsInstance(package, chocolatey.PackageOutdated)
@@ -84,19 +95,19 @@ class ChocolateyTestCase(unittest.TestCase):
         pkg_id = "chocolatey"
         # exact
         found = self.choco.search(pkg_id, exact=True)
-        self.assertIsInstance(found, Dict)
+        self.assertIsInstance(found, dict)
         self.assertIsInstance(found[pkg_id], chocolatey.Package)
         found = self.choco.search(pkg_id, exact=True, all_versions=True)
-        self.assertIsInstance(found, Dict)
-        self.assertIsInstance(found[pkg_id], List)
+        self.assertIsInstance(found, dict)
+        self.assertIsInstance(found[pkg_id], list)
         self.assertIsInstance(found[pkg_id][0], chocolatey.Package)
         # as filter
         found = self.choco.search(pkg_id, by_id_only=True)
-        self.assertIsInstance(found, Dict)
+        self.assertIsInstance(found, dict)
         self.assertIsInstance(list(found.values())[0], chocolatey.Package)
         found = self.choco.search(pkg_id, by_id_only=True, all_versions=True)
-        self.assertIsInstance(found, Dict)
-        self.assertIsInstance(list(found.values())[0], List)
+        self.assertIsInstance(found, dict)
+        self.assertIsInstance(list(found.values())[0], list)
         self.assertIsInstance(list(found.values())[0][0], chocolatey.Package)
 
     def test_info(self):
@@ -108,7 +119,7 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_export(self):
         """Exports list of currently installed packages."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir = Path(temp_dir)
+            temp_dir = EPath(temp_dir)
             pkg_config    = temp_dir/"packages.config"
             pkg_config0   = temp_dir/"packages0.config"
             pkg_config0v  = temp_dir/"packages0v.config"
@@ -119,19 +130,19 @@ class ChocolateyTestCase(unittest.TestCase):
             pkg_config2   = temp_dir/"packages2.config"
             pkg_config2v  = temp_dir/"packages2v.config"
             pkg_config2nv = temp_dir/"packages2nv.config"
-            with pushd(temp_dir):
+            with temp_dir.pushd():
                 self.choco.export()
                 shutil.move(pkg_config, pkg_config0)
-                self.choco.export(include_version=True)
+                self.choco.export(include_version_numbers=True)
                 shutil.move(pkg_config, pkg_config0v)
-                self.choco.export(include_version=False)
+                self.choco.export(include_version_numbers=False)
                 shutil.move(pkg_config, pkg_config0nv)
             self.choco.export(pkg_config1)
-            self.choco.export(pkg_config1v,  include_version=True)
-            self.choco.export(pkg_config1nv, include_version=False)
+            self.choco.export(pkg_config1v,  include_version_numbers=True)
+            self.choco.export(pkg_config1nv, include_version_numbers=False)
             self.choco.export(output_file_path=pkg_config2)
-            self.choco.export(output_file_path=pkg_config2v,  include_version=True)
-            self.choco.export(output_file_path=pkg_config2nv, include_version=False)
+            self.choco.export(output_file_path=pkg_config2v,  include_version_numbers=True)
+            self.choco.export(output_file_path=pkg_config2nv, include_version_numbers=False)
             self.assertTrue(pkg_config0.exists())
             self.assertTrue(pkg_config0v.exists())
             self.assertTrue(pkg_config0nv.exists())
@@ -193,7 +204,7 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_pinned(self):
         """Retrieves a list of packages suppress for upgrades."""
         pinned = self.choco.pinned()
-        self.assertIsInstance(pinned, Dict)
+        self.assertIsInstance(pinned, dict)
         for pkg_id, package in pinned.items():
             self.assertIsInstance(pkg_id, str)
             self.assertIsInstance(package, chocolatey.Package)
@@ -207,8 +218,8 @@ class ChocolateyTestCase(unittest.TestCase):
         pinned_before = self.choco.pinned()
         self.choco.pin_add(pkg_id=pkg_id)
         pinned_after = self.choco.pinned()
-        self.assertIsInstance(pinned_before, Dict)
-        self.assertIsInstance(pinned_after,  Dict)
+        self.assertIsInstance(pinned_before, dict)
+        self.assertIsInstance(pinned_after, dict)
         diff_keys = set(pinned_after) - set(pinned_before)
         self.assertEqual(diff_keys, set([pkg_id]))
         self.choco.pin_remove(pkg_id=pkg_id)
@@ -222,8 +233,8 @@ class ChocolateyTestCase(unittest.TestCase):
         pinned_before = self.choco.pinned()
         self.choco.pin_remove(pkg_id=pkg_id)
         pinned_after = self.choco.pinned()
-        self.assertIsInstance(pinned_before, Dict)
-        self.assertIsInstance(pinned_after,  Dict)
+        self.assertIsInstance(pinned_before, dict)
+        self.assertIsInstance(pinned_after, dict)
         diff_keys = set(pinned_before) - set(pinned_after)
         self.assertEqual(diff_keys, set([pkg_id]))
 
@@ -232,8 +243,8 @@ class ChocolateyTestCase(unittest.TestCase):
         into a nupkg file."""
         print(flush=True)
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir = Path(temp_dir)
-            with pushd(temp_dir):
+            temp_dir = EPath(temp_dir)
+            with temp_dir.pushd():
                 pkg4_id = "py-chocolatey.Test4"
                 pkg5_id = "py-chocolatey.Test5"
                 self.choco.pack(data_dir/pkg4_id/(pkg4_id + ".nuspec"))
@@ -244,8 +255,8 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_push(self):
         """Pushes a compiled nupkg to a source."""
         with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir = Path(temp_dir)
-            with pushd(temp_dir):
+            temp_dir = EPath(temp_dir)
+            with temp_dir.pushd():
                 pkg_id = "py-chocolatey.Test0"
                 self.choco.pack(nuspec_file_path=data_dir/pkg_id/(pkg_id + ".nuspec"))
                 self.assertTrue(Path(pkg_id + ".1.0.0.nupkg").exists())
@@ -273,7 +284,7 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_config(self):
         """Retrieve config settings."""
         configs = self.choco.config()
-        self.assertIsInstance(configs, Dict)
+        self.assertIsInstance(configs, dict)
         for cfg_id, config in configs.items():
             self.assertIsInstance(cfg_id, str)
             self.assertIsInstance(config, chocolatey.Config)
@@ -322,7 +333,7 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_sources(self):
         """Retrieve default sources."""
         sources = self.choco.sources()
-        self.assertIsInstance(sources, Dict)
+        self.assertIsInstance(sources, dict)
         for name, source in sources.items():
             self.assertIsInstance(source, chocolatey.Source)
 
@@ -381,7 +392,7 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_features(self):
         """Retrieve features."""
         features = self.choco.features()
-        self.assertIsInstance(features, Dict)
+        self.assertIsInstance(features, dict)
         for name, feature in features.items():
             self.assertIsInstance(feature, chocolatey.Feature)
 
@@ -440,7 +451,7 @@ class ChocolateyTestCase(unittest.TestCase):
             self.choco.apikey_add(source=data_dir, api_key=api_key)
             try:
                 apikeys = self.choco.apikeys()
-                self.assertIsInstance(apikeys, List)
+                self.assertIsInstance(apikeys, list)
                 for apikey in apikeys:
                     self.assertIsInstance(apikey, chocolatey.ApiKey)
             finally:
@@ -493,7 +504,7 @@ class ChocolateyTestCase(unittest.TestCase):
     def test_templates(self):
         """Retrieve templates."""
         templates = self.choco.templates()
-        self.assertIsInstance(templates, Dict)
+        self.assertIsInstance(templates, dict)
         for name, template in templates.items():
             self.assertIsInstance(name, str)
             self.assertIsInstance(template, chocolatey.Template)
