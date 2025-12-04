@@ -1,7 +1,7 @@
 Url:       https://community.chocolatey.org/install.ps1
-Completed: 2025-09-25 08:21:05
+Completed: 2025-12-02 20:28:15
 File name: install.ps1
-File date: Thu, 18 Sep 2025 16:12:32 GMT
+File date: 2025-12-01 12:18:36
 File size: 36218
 SHA256sum: 44E045ED5350758616D664C5AF631E7F2CD10165F5BF2BD82CBF3A0BB8F63462
 SHA1sum:   DED4E30152638C4E53DB4C3C62A76FE0B69E60AB
