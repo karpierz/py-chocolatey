@@ -1,45 +1,53 @@
 Changelog
 =========
 
+0.11.0 (2026-05-17)
+-------------------
+- Upgrade chocolatey installer for chocolatey.2.7.2.nupkg
+- Added support for Python 3.15
+- Dropped support for Python 3.10 (due to compatibility issues).
+- Bugfix concerning the elevated mode checking.
+- Copyright year update.
+- Switched from tox to Nox for project automation.
+- The documentation has been moved from Read the Docs to GitHub Pages.
+- Setup update, fixes and improvement.
+
 0.9.0 (2025-09-19)
 ------------------
 - Making and mark the package typed.
+- Upgrade chocolatey installer for chocolatey.2.5.1.nupkg
 - Add license() command. Available since Chocolatey v2.5.0
 - Add support() command. Available since Chocolatey v2.5.0
 - Fix an error in export(): was include_version -> include_version_numbers.
 - Remove all_versions option from installed(). Dropped in Chocolatey v2.0.0
 - | The ignore_pinned option is now supported in installed(). Available since
   | Chocolatey v2.5.0
-- Setup (dependencies) update and fixes.
-
-0.8.3 (2025-09-01)
-------------------
-- Upgrade chocolatey installer for chocolatey.2.5.1.nupkg
-- Setup (dependencies) update.
+- Added the 'tool.tox.env.cleanup' test environment.
+- Setup update (mainly dependencies) and fixes.
 
 0.8.2 (2025-05-15)
 ------------------
-- The distribution is now created using 'build' instead of 'setuptools'.
-- Setup (dependencies) update (due to regressions in tox and setuptools).
+- The distribution is now built using 'build' instead of 'setuptools'.
+- Setup update (mainly dependencies) (due to regressions in tox and setuptools).
 
 0.8.1 (2025-05-04)
 ------------------
-- Setup (dependencies) update.
+- Setup update (mainly dependencies).
 
 0.8.0 (2025-04-28)
 ------------------
-- Add support for Python 3.14
-- Drop support for Python 3.9 (due to compatibility issues).
-- Update readthedocs's python to version 3.13
-- Update tox's base_python to version 3.13
-- Setup (dependencies) update.
+- Added support for Python 3.14
+- Dropped support for Python 3.9 (due to compatibility issues).
+- Updated Read the Docs' Python version to 3.13
+- Updated tox's base_python to version 3.13
+- Setup update (mainly dependencies).
 
 0.7.1 (2025-03-20)
 ------------------
 - Upgrade chocolatey installer for chocolatey.2.4.3.nupkg
-- Add support for PyPy 3.11
-- Drop support for PyPy 3.9
-- Setup (dependencies) update.
+- Added support for PyPy 3.11
+- Dropped support for PyPy 3.9
+- Setup update (mainly dependencies).
 
 0.7.0 (2025-02-01)
 ------------------
@@ -54,36 +62,36 @@ Changelog
 - More unittests.
 - 100% code linting.
 - 100% code coverage.
-- Setup (dependencies) update.
+- Setup update (mainly dependencies).
 
 0.6.1 (2024-12-13)
 ------------------
 - Source distribution (\*.tar.gz now) is compliant with PEP-0625.
-- Setup (dependencies) update.
+- Setup update (mainly dependencies).
 
 0.6.0 (2024-12-10)
 ------------------
 - Upgrade chocolatey installer for chocolatey.2.4.1.nupkg
 - More unittests.
 - Tox configuration is now in native (toml) format.
-- Setup (dependencies) update.
+- Setup update (mainly dependencies).
 
 0.5.0 (2024-10-30)
 ------------------
-- Add support for Python 3.13
-- Drop support for Python 3.8
-- Setup (dependencies) update.
+- Added support for Python 3.13
+- Dropped support for Python 3.8
+- Setup update (mainly dependencies).
 
 0.4.1 (2024-06-20)
 ------------------
 - Upgrade chocolatey installer for chocolatey.2.3.0.nupkg
-- Setup (dependencies) update.
+- Setup update (mainly dependencies).
 
 0.4.0 (2024-01-26)
 ------------------
 - Setup update (now based on tox >= 4.0).
-- Add support for Python 3.12
-- Add support for PyPy 3.9 and 3.10
+- Added support for Python 3.12
+- Added support for PyPy 3.9 and 3.10
 - Copyright year update.
 - Cleanup.
 
@@ -94,8 +102,8 @@ Changelog
 
 0.3.0 (2023-11-22)
 ------------------
-- Drop support for Python 3.7.
-- Setup (dependencies) update.
+- Dropped support for Python 3.7.
+- Setup update (mainly dependencies).
 
 0.2.2 (2023-10-27)
 ------------------
@@ -120,17 +128,10 @@ Changelog
 
 0.1.0 (2023-10-09)
 ------------------
+- First working release.
 - Added support for non-elevated mode.
 - Added (mostly raw) unittests.
-- First working release.
-
-0.0.2 (2023-10-05)
-------------------
 - Small fix for run().
-
-0.0.1 (2023-07-13)
-------------------
-- Initial commit.
 
 0.0.0 (2023-07-07)
 ------------------
