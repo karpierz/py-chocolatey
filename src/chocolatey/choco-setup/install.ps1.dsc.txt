@@ -1,8 +1,0 @@
-Url:       https://chocolatey.org/install.ps1
-Url redir: https://community.chocolatey.org/install.ps1
-Completed: 2026-05-18 17:13:54
-File name: install.ps1
-File date: 2026-05-14 03:00:54
-File size: 36218
-SHA256sum: 44E045ED5350758616D664C5AF631E7F2CD10165F5BF2BD82CBF3A0BB8F63462
-SHA1sum:   DED4E30152638C4E53DB4C3C62A76FE0B69E60AB
