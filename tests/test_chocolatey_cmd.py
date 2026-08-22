@@ -3,6 +3,7 @@
 
 import unittest
 import os
+import inspect
 import shutil
 import tempfile
 import threading
@@ -33,6 +34,36 @@ class ChocolateyCmdTestCase(unittest.TestCase):
         self.lock.release()
 
     ## Low-level Chocolatey API ##
+
+    def test_api_surface(self):
+        # ensure methods exist and are callable
+        for method_name in (
+            "choco",
+            "help",
+            "license",
+            "support",
+            "apikey", "setapikey",
+            "cache",
+            "config",
+            "export",
+            "feature", "features",
+            "search", "find",
+            "info",
+            "list",
+            "outdated",
+            "install",
+            "upgrade",
+            "uninstall",
+            "new",
+            "pack",
+            "pin",
+            "push",
+            "source", "sources",
+            "template", "templates",
+        ):
+            method = getattr(self.choco_cmd, method_name)
+            self.assertTrue(callable(method))
+            self.assertTrue(inspect.ismethod(method))
 
     def test_choco(self):
         self.assertTrue(1 == 1)
@@ -98,7 +129,8 @@ class ChocolateyCmdTestCase(unittest.TestCase):
         self.assertTrue(1 == 1)
 
     def test_source(self):
-        self.assertTrue(1 == 1)
+        self.assertIs(self.choco_cmd.__class__.source,
+                      self.choco_cmd.__class__.sources)
 
     def test_template(self):
         self.assertIs(self.choco_cmd.__class__.template,

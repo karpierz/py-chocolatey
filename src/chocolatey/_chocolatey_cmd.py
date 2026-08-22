@@ -9,14 +9,16 @@ import typing
 from typing import TypeAlias, Any
 from typing_extensions import Self
 from collections.abc import Callable
-import sys
-import ctypes
 from functools import partialmethod
 
 from utlx import public
 from utlx import module_path
 from utlx import run
-import platformdirs
+from utlx.platform import is_graalpy
+if is_graalpy:  # pragma: no cover
+    from pip._vendor import platformdirs
+else:
+    import platformdirs  # type: ignore[no-redef]
 
 CompletedProcessCallable: TypeAlias = Callable[..., run.CompletedTextProcess]
 
@@ -56,7 +58,8 @@ class ChocolateyCmd:
 
     def apikey(self, *args: Any, **kwargs: Any) -> run.CompletedTextProcess:
         """Retrieves, saves or deletes an API key for a particular source."""
-        return self._cmd("apikey", *args, source=self._get_source(kwargs), **kwargs)
+        cmd = self._cmd if args[0] in ("list",) else self._cmd_elevated
+        return cmd("apikey", *args, source=self._get_source(kwargs), **kwargs)
 
     setapikey = apikey  # alias for apikey
 
@@ -155,27 +158,64 @@ class ChocolateyCmd:
     @classmethod
     def _run_wrapper(cls, run_fun: CompletedProcessCallable, *args: Any,
                      __format: str = "--{}", **kwargs: Any) -> run.CompletedTextProcess:
-        normal_args = (arg for arg in args if arg is not None)
+        normal_args = [arg for arg in args if arg is not None]
         allowed_kwargs, reserved_kwargs = run.split_kwargs(kwargs, cls._run_reserved_kwargs)
-        allowed_args = sum(([__format.format(key.replace("_", "-")
-                                             + ("" if val is True else f"={val}"))]
-                            for key, val in allowed_kwargs.items() if val is not False),
-                           []) + cls._common_args
-        return run_fun(*normal_args, *allowed_args, **reserved_kwargs)
+        allowed_args: list[str] = []
+        for key, vals in allowed_kwargs.items():
+            key = key.replace("_", "-")
+            if vals is not list: vals = [vals]
+            allowed_args += (__format.format(key if val is True else f"{key}={val}")
+                             for val in vals if val is not False)
+        return run_fun(*normal_args, *allowed_args, *cls._common_args, **reserved_kwargs)
 
-    _run_reserved_kwargs = {"stdin", "input", "stdout", "stderr", "capture_output",
-                            "shell", "cwd", "timeout", "check", "encoding", "errors",
-                            "text", "env", "universal_newlines"}
+    _run_reserved_kwargs = {"check", "text", "capture_output",
+                            "stdin", "input", "stdout", "stderr", "shell", "cwd",
+                            "timeout", "encoding", "errors", "env", "universal_newlines"}
 
     @property
-    def _in_elevated(self) -> bool:
-        is_admin = bool(ctypes.windll.shell32.IsUserAnAdmin())
-        win_ver  = sys.getwindowsversion()
-        return is_admin or win_ver.build < 6000
+    def _is_elevated(self) -> bool:
+        """
+        Check if the current process is running with elevated (administrator) rights.
+
+        Works correctly on Vista+ with UAC.
+        On XP/2003 (major < 6) elevation concept does not exist, so admin == elevated.
+        """
+        import sys
+        from ctypes import byref, sizeof
+        from utlx.platform.windows import winapi
+
+        win_ver = sys.getwindowsversion()
+        if win_ver.major < 6:  # pragma: no cover
+            # Windows XP/2003 - no UAC, every admin is "elevated"
+            return bool(winapi.windll.shell32.IsUserAnAdmin())
+
+        # Vista and newer - check the token
+
+        # Open the process token
+        TOKEN_QUERY = 0x0008
+        h_token = winapi.HANDLE()
+        ok = winapi.OpenProcessToken(winapi.GetCurrentProcess(),
+                                     TOKEN_QUERY,
+                                     byref(h_token))
+        if not ok:  # pragma: no cover
+            return False
+
+        # Retrieve the elevation information
+        TokenElevation = 20
+        elevation = winapi.DWORD()
+        size      = winapi.DWORD()
+        ok = winapi.GetTokenInformation(h_token, TokenElevation,
+                                        byref(elevation),
+                                        sizeof(elevation),
+                                        byref(size))
+        if not ok:  # pragma: no cover
+            return False
+
+        return bool(elevation.value)
 
     @property
     def _cmd_elevated(self) -> CompletedProcessCallable:
-        return self._cmd if self._in_elevated else self._cmd_launched
+        return self._cmd if self._is_elevated else self._cmd_launched
 
     _cmd = typing.cast(CompletedProcessCallable,
                        partialmethod(_run_wrapper, run, _CHOCOLATEY_EXE))

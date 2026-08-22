@@ -61,11 +61,20 @@ class PackageOutdated(Package):
 @public
 @dataclass
 class PackageInfo(Package):
+    # required in *.nuspec
     description: str = ""
+    # optional in *.nuspec
     title: str = ""
     summary: str = ""
+    projectUrl: str | None = None  # noqa: N815
+    licenseUrl: str | None = None  # noqa: N815
+    tags: tuple[str, ...] = ()
+    packageSourceUrl:  str | None = None  # noqa: N815
+    packageDetailsUrl: str | None = None  # noqa: N815
     # additional
     published: str = ""
+    downloadCount: int | None = None  # noqa: N815
+    versionDownloadCount: int | None = None  # noqa: N815
 
 
 @public
@@ -151,10 +160,10 @@ class Chocolatey:
         self.cmd = ChocolateyCmd(self.source)
         return self
 
-    ### High-level API ###
+    ## High-level API ##
 
     @classmethod
-    def setup(cls) -> None:
+    def setup(cls, *, upgrade: bool = False) -> None:
         """Setup chocolatey software."""
         choco_pkg = next(cls._SETUP_DIR.glob("chocolatey.*.nupkg"))
         # Install chocolatey
@@ -163,6 +172,14 @@ class Chocolatey:
             shutil.copy2(str(choco_pkg), str(zip_file))
             run(shutil.which("powershell.exe"), "-ExecutionPolicy", "Bypass",
                 cls._SETUP_DIR/"install.ps1", "-ChocolateyDownloadUrl", zip_file)
+        if upgrade:  # pragma: no cover
+            cmd = ChocolateyCmd(str(cls._SETUP_DIR))
+            try:
+                cmd.upgrade("chocolatey",
+                            install_if_not_installed=False, yes=True)
+            except run.CalledProcessError as exc:
+                # self._handle_exception(exc)
+                raise exc  # pragma: no cover
 
     @property
     def version(self) -> str:
@@ -181,16 +198,16 @@ class Chocolatey:
         parts[len(parts):] =  (4 - len(parts)) * [0]
         return version_info(*parts)
 
-    def help(self, *, command: str | None = None) -> str:  # noqa: A003
+    def help(self, command: str | None = None, **kwargs: Any) -> str:  # noqa: A003
         """Gets the help information for choco and choco commands."""
         try:
             if not command:
                 output = self.cmd.help(limit_output=True,
-                                       **self._capture_output)
+                                       **self._capture_output, **kwargs)
             else:
                 output = self.cmd.choco(command, help=True,
                                         limit_output=True,
-                                        **self._capture_output)
+                                        **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
         return output.stdout.lstrip().replace("\r\n", "\n").replace("\r", "\n")
@@ -229,7 +246,7 @@ class Chocolatey:
                                    **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._packages(output.stdout)
+        return self._parse_packages(output.stdout)
 
     def outdated(self, *, ignore_pinned: bool = True, ignore_unfound: bool = True,
                  **kwargs: Any) -> dict[str, list[PackageOutdated]]:
@@ -243,7 +260,7 @@ class Chocolatey:
                                        **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        packages = self._packages(output.stdout, klass=PackageOutdated)
+        packages = self._parse_packages(output.stdout, klass=PackageOutdated)
         for pkg_id, val in list(packages.items()):
             pkgs = [val] if isinstance(val, PackageOutdated) else val
             for idx, pkg in enumerate(pkgs[:]):
@@ -269,7 +286,7 @@ class Chocolatey:
             if not output.stdout: break
             out += output.stdout ; page += 1
             if exact: break
-        return self._packages(out, allow_multiple=all_versions)
+        return self._parse_packages(out, allow_multiple=all_versions)
 
     def info(self, *, pkg_id: str, local_only: bool = False,
              **kwargs: Any) -> PackageInfo | None:
@@ -284,7 +301,7 @@ class Chocolatey:
         # if not found, returns None
         if not output.stdout.strip():
             return None  # pragma: no cover
-        packages = self._packages(output.stdout, klass=PackageInfo)
+        packages = self._parse_packages(output.stdout, klass=PackageInfo)
         if not packages:
             return None  # pragma: no cover
         pkg_info = list(packages.values())[0]
@@ -294,7 +311,7 @@ class Chocolatey:
                                    **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._info(output.stdout, pkg_info)
+        return self._parse_info(output.stdout, pkg_info)
 
     def export(self, output_file_path: StrPath | bool = False, *,
                include_version_numbers: bool = True, **kwargs: Any) -> None:
@@ -353,7 +370,7 @@ class Chocolatey:
                                   **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._packages(output.stdout)
+        return self._parse_packages(output.stdout)
 
     def pin_add(self, *, pkg_id: str, **kwargs: Any) -> None:
         """Suppress upgrades for a package."""
@@ -416,7 +433,7 @@ class Chocolatey:
                                      **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._config(output.stdout, klass=Config)
+        return self._parse_config(output.stdout, klass=Config)
 
     def config_get(self, *, name: str, **kwargs: Any) -> str | bool:
         """Get config value."""
@@ -462,7 +479,7 @@ class Chocolatey:
                                      **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._config(output.stdout, klass=Source)
+        return self._parse_config(output.stdout, klass=Source)
 
     def source_add(self, *, name: str, source: str, **kwargs: Any) -> None:
         """Add source."""
@@ -508,7 +525,7 @@ class Chocolatey:
                                       **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._config(output.stdout, klass=Feature)
+        return self._parse_config(output.stdout, klass=Feature)
 
     def feature_get(self, *, name: str, **kwargs: Any) -> bool:
         """Get feature value."""
@@ -548,7 +565,7 @@ class Chocolatey:
                                      **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return list(self._config(output.stdout, klass=ApiKey).values())
+        return list(self._parse_config(output.stdout, klass=ApiKey).values())
 
     def apikey_add(self, *, source: str, api_key: str, **kwargs: Any) -> None:
         """Add API key for source."""
@@ -576,7 +593,7 @@ class Chocolatey:
                                        **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        return self._config(output.stdout, klass=Template)
+        return self._parse_config(output.stdout, klass=Template)
 
     def template_info(self, *, name: str, **kwargs: Any) -> Template:
         """Retrieve template info."""
@@ -586,7 +603,7 @@ class Chocolatey:
                                        **self._capture_output, **kwargs)
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
-        templates: dict[str, Template] = self._config(output.stdout, klass=Template)
+        templates: dict[str, Template] = self._parse_config(output.stdout, klass=Template)
         return list(templates.values())[0]
 
     def cache_list(self, **kwargs: Any) -> None:
@@ -605,6 +622,20 @@ class Chocolatey:
         except run.CalledProcessError as exc:
             self._handle_exception(exc)
 
+    # Exceptions
+
+    class Error(Exception):
+        """Chocolatey error."""
+
+    class TypeError(builtins.TypeError, Error):  # noqa: A001
+        """Chocolatey type error."""
+
+    class ValueError(builtins.ValueError, Error):  # noqa: A001
+        """Chocolatey value error."""
+
+    class RuntimeError(builtins.RuntimeError, Error):  # noqa: A001
+        """Chocolatey runtime error."""
+
     # ----- internals ----- #
 
     # OUTPUT_QUIET ERROR_QUIET
@@ -616,8 +647,8 @@ class Chocolatey:
 
     _capture_output = dict(text=True, capture_output=True)
 
-    def _packages(self, out: str, *, klass: type = Package,
-                  allow_multiple: bool | None = None) -> dict[str, Any]:
+    def _parse_packages(self, out: str, *, klass: type = Package,
+                        allow_multiple: bool | None = None) -> dict[str, Any]:
         lines = [line.strip() for line in out.strip().splitlines()]
         lines.sort(key=str.casefold)
         packages = defaultdict(list)
@@ -632,8 +663,8 @@ class Chocolatey:
         return dict(packages)
 
     @classmethod
-    def _info(cls, out: str,
-              pkg_info: PackageInfo | None) -> PackageInfo | None:
+    def _parse_info(cls, out: str,
+                    pkg_info: PackageInfo | None) -> PackageInfo | None:
         # if not found, returns None
         if not out.strip() or pkg_info is None:
             return None  # pragma: no cover
@@ -641,25 +672,33 @@ class Chocolatey:
         out = out.replace("\r\n", "\n").replace("\r", "\n")
 
         # pre-parse
-        out = re.sub(r"[\t ]*\|", "\n", out)
-        out = re.sub(r"\n[\t ]*Package url[\t ]*\n", "\n Package url: n/a\n", out)
+        out = re.sub(r"\h*\|\h*(?P<info_key>[^:|]+:)", "\n " + r"\g<info_key>", out)
+        # chocolatey errors
+        for item in ("Package url",
+                     "Package approved as a trusted package on"):
+            out = re.sub(rf"\n\h*{item}\h*\n", f"\n {item}: n/a\n", out)
+            out = re.sub(rf"\n\h*{item}\h+",   f"\n {item}: ", out)
+        # print("============================")
+        # print(out.splitlines())
+        # print("============================")
         # parse
-        info_header_pattern = r"\s*Chocolatey[\t ]+v.+?([\t ]*\n)+" + \
-                              rf"\s*{pkg_info.id}[\t ]+{pkg_info.version}([\t ]+\[\w+\])?" + \
-                              r"([\t ]*\n)+"
+        info_header_pattern = (r"\s*Chocolatey\h+v.+?(\h*\n)+"
+                               rf"\s*{pkg_info.id}\h+{pkg_info.version}"
+                               r"(\h+(?P<status>\[\w+\]))?\h*[^\n]*(\h*\n)+")
         info_pattern        = r"(?P<info>(.*\n)*)"
-        info_footer_pattern = r"\n(?P<pkgs_found>\d+)" + \
-                              r"[\t ]+packages[\t ]+(found|installed)[\t ]*\.([\t ]*\n)*"
+        info_footer_pattern = (r"\n(?P<pkgs_found>\d+)"
+                               r"\h+packages\h+(found|installed)\h*\.(\h*\n)*")
         match = re.match(info_header_pattern
                          + info_pattern
                          + info_footer_pattern, out)
+        # print(match)
         if not match: return pkg_info  # pragma: no cover
         info_text = textwrap.dedent(match.captures("info")[0])
         if not info_text.endswith("\n"): info_text += "\n"
 
-        info_key_pattern   = r"(?P<info_key>[^\t :]+([\t ]+[^\t :]+)*)"
-        info_value_pattern = r"(?P<info_value>.*(\n([\t ]+.*)?)*)"
-        info_item_pattern  = rf"{info_key_pattern}[\t ]*:[\t ]*{info_value_pattern}"
+        info_key_pattern   = r"(?P<info_key>[^\t :]+(\h+[^\t :]+)*)"
+        info_value_pattern = r"(?P<info_value>.*(\n(\h+.*)?)*)"
+        info_item_pattern  = rf"{info_key_pattern}\h*:\h*{info_value_pattern}"
         info_items_pattern = rf"(?P<info_items>({info_item_pattern}\n)+)"
 
         match = re.match(info_items_pattern, info_text)
@@ -669,28 +708,32 @@ class Chocolatey:
         # print("============================")
         # print(dict(info))
         # print("============================")
+        # required elements in *.nuspec
         pkg_info.description = info.pop("Description", "")
-        pkg_info.title       = info.pop("Title", "")
-        pkg_info.summary     = info.pop("Summary", "")
-        # additional
-        pkg_info.published   = info.pop("Published", "")
-
-        # TODO:
-        """
-        Exist in package with empty metadata (only required fields set).
-        ----------------------------------------------------------------
-        Number of Downloads: n/a
-        Downloads for this version: n/a
-        Package url
-        Chocolatey Package Source: n/a
-        Tags:
-        Software Site: n/a
-        Software License: n/a
-        """
+        # optional elements in *.nuspec
+        pkg_info.title = info.pop("Title", "")
+        url = info.pop("Software Site", "n/a").strip()
+        pkg_info.projectUrl = url if url.lower() != "n/a" else None
+        url = info.pop("Software License", "n/a").strip()
+        pkg_info.licenseUrl = url if url.lower() != "n/a" else None
+        pkg_info.summary = info.pop("Summary", "")
+        tags = info.pop("Tags", "").strip()
+        pkg_info.tags = tuple(tags.split(" ")) if tags else ()
+        url = info.pop("Chocolatey Package Source", "n/a").strip()
+        pkg_info.packageSourceUrl = url if url.lower() != "n/a" else None
+        url = info.pop("Package url", "n/a").strip()
+        pkg_info.packageDetailsUrl = url if url.lower() != "n/a" else None
+        # optional elements in *.nuspec and in output
+        # additional elements
+        pkg_info.published = info.pop("Published", "")
+        count = info.pop("Number of Downloads", "n/a").strip()
+        pkg_info.downloadCount = int(count) if count.lower() != "n/a" else None
+        count = info.pop("Downloads for this version", "n/a").strip()
+        pkg_info.versionDownloadCount = int(count) if count.lower() != "n/a" else None
         return pkg_info
 
     @classmethod
-    def _config(cls, out: str, *, klass: type) -> dict[str, Any]:
+    def _parse_config(cls, out: str, *, klass: type) -> dict[str, Any]:
         lines = [line.strip() for line in out.strip().splitlines()]
         lines.sort(key=str.casefold)
         configs = {}
@@ -707,18 +750,6 @@ class Chocolatey:
     def _handle_exception(self, exc: BaseException, **kwargs: Any) -> None:
         raise exc  # pragma: no cover
         # raise Chocolatey.RuntimeError(???)
-
-    class Error(Exception):
-        """Chocolatey error."""
-
-    class TypeError(builtins.TypeError, Error):  # noqa: A001
-        """Chocolatey type error."""
-
-    class ValueError(builtins.ValueError, Error):  # noqa: A001
-        """Chocolatey value error."""
-
-    class RuntimeError(builtins.RuntimeError, Error):  # noqa: A001
-        """Chocolatey runtime error."""
 
 
 def _bool2str(name: str, value: Any, *,

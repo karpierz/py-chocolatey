@@ -1,0 +1,7 @@
+Url:       https://packages.chocolatey.org/chocolatey.2.7.4.nupkg
+Completed: 2026-08-22 09:13:42
+File name: chocolatey.2.7.4.nupkg
+File date: 2026-08-19 13:37:30
+File size: 5713666
+SHA256sum: AEC2DBD6CE91B7378EB4A0C21524E748D30332EA856E898404999F77328BD504
+SHA1sum:   BC33904839F1472FF4A980C14EABC551780DB1DD
